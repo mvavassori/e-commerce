@@ -4,36 +4,30 @@ import Cart from "../cart";
 
 export default function Navbar() {
   return (
-    <nav className="relative flex items-center justify-between lg:px-6">
+    <nav className="relative flex items-center justify-between lg:px-6 p-4">
       <div className="block flex-none md:hidden">
         <MobileMenu />
       </div>
-      <div className="flex w-full items-center p-4">
-        <div className="flex w-full md:w-1/3">
-          <Link
-            href="/"
-            className="mr-2 flex w-full items-center justify-center md:w-auto lg:mr-6"
-          >
-            LOGO
-          </Link>
+      <div className="flex w-full items-center justify-center md:justify-normal">
+        <Link href="/" className="text-xl font-bold">
+          <span className="text-blue-600">e</span>
+          <span>-commerce</span>
+        </Link>
 
-          <ul className="ml-12 hidden gap-6 text-sm md:flex md:items-center">
-            <li>
-              <Link href="/" className="underline-offset-4 hover:underline">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/about"
-                className=" underline-offset-4 hover:underline"
-              >
-                About
-              </Link>
-            </li>
-          </ul>
+        <ul className="ml-12 hidden gap-6 text-sm md:flex md:items-center">
+          <li>
+            <Link href="/" className="underline-offset-4 hover:underline">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link href="/about" className=" underline-offset-4 hover:underline">
+              About
+            </Link>
+          </li>
+        </ul>
 
-          {/* {menu.length ? (
+        {/* {menu.length ? (
                 <ul className="hidden gap-6 text-sm md:flex md:items-center">
                   {menu.map((item: Menu) => (
                     <li key={item.title}>
@@ -47,15 +41,14 @@ export default function Navbar() {
                   ))}
                 </ul>
               ) : null} */}
-        </div>
-        <div className="hidden justify-center md:flex md:w-1/3">
-          {/* <Search /> */}
-        </div>
-        <div className="flex justify-end md:w-1/3">
-          {/* <Suspense fallback={<OpenCart />}> */}
-          <Cart />
-          {/* </Suspense> */}
-        </div>
+      </div>
+      {/* <div className="hidden justify-center md:flex md:w-1/3">
+        <Search />
+      </div> */}
+      <div className="flex justify-end md:w-1/3">
+        {/* <Suspense fallback={<OpenCart />}> */}
+        <Cart />
+        {/* </Suspense> */}
       </div>
     </nav>
   );
