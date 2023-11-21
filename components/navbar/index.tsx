@@ -21,6 +21,14 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
+            <Link
+              href="/product/tshirt"
+              className="underline-offset-4 hover:underline"
+            >
+              Product
+            </Link>
+          </li>
+          <li>
             <Link href="/about" className=" underline-offset-4 hover:underline">
               About
             </Link>

@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import Hamburger from "../icons/Hamburger";
-import Close from "../icons/Close";
+import HamburgerIcon from "../icons/HamburgerIcon";
+import CloseIcon from "../icons/CloseIcon";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function MobileMenu() {
       </div>
       {/* Toggle Button */}
       <button onClick={toggleMobileMenu} className="z-30">
-        {isOpen ? <Close /> : <Hamburger />}
+        {isOpen ? <CloseIcon /> : <HamburgerIcon />}
       </button>
     </div>
   );
