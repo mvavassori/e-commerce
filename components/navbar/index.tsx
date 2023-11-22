@@ -4,7 +4,7 @@ import Cart from "../cart";
 
 export default function Navbar() {
   return (
-    <nav className="relative flex items-center justify-between lg:px-6 p-4">
+    <nav className="fixed top-0 left-0 right-0 flex items-center justify-between lg:px-6 p-4 z-50 bg-white">
       <div className="block flex-none md:hidden">
         <MobileMenu />
       </div>
@@ -54,6 +54,12 @@ export default function Navbar() {
         <Search />
       </div> */}
       <div className="flex justify-end md:w-1/3">
+        <Link
+          href="/signin"
+          className="hidden md:block mr-4 text-sm hover:bg-blue-600 justify-end bg-blue-500 text-white px-2 py-1 rounded-full"
+        >
+          Sign In
+        </Link>
         {/* <Suspense fallback={<OpenCart />}> */}
         <Cart />
         {/* </Suspense> */}

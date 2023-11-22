@@ -18,6 +18,13 @@ export default function MobileMenu() {
         {/* Menu Items */}
         <div className="mt-12 flex flex-col items-start p-4">
           <Link
+            href="/signin"
+            className="text-lg block p-2 w-full"
+            onClick={toggleMobileMenu}
+          >
+            Sign In
+          </Link>
+          <Link
             href="/"
             className="text-lg block p-2 w-full"
             onClick={toggleMobileMenu}

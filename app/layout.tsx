@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "E-Commerce",
-  description: "This is a standard e-commerce built with Next.js",
+  description: "This is a standard e-commerce website built with Next.js",
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Navbar />
-        <main>{children}</main>
+        <main className="mt-16">{children}</main>
         <Footer />
       </body>
     </html>

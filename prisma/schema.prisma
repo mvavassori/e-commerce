@@ -5,17 +5,90 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Vercel PostreSQL
+// datasource db {
+//   provider = "postgresql"
+//   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+// }
+
+// Supabase
 datasource db {
   provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id    String  @default(cuid())  @id
-  email String  @unique
-  name  String?
-  createdAt DateTime  @default(now()) @map(name: "created_at")
-  updatedAt DateTime  @updatedAt  @map(name: "updated_at")
-  @@map(name: "users")
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String   @db.VarChar(30)
+  surname   String   @db.VarChar(30)
+  password  String   @db.VarChar(100)
+  birthDate DateTime
+  gender    Gender
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart?
+  orders    Order[]
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  sku         String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  inventory   Int
+  cartItems   CartItem[]
+  OrderItem   OrderItem[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  status    String      @default("PENDING")
+  total     Float
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  price     Float
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique // Foreign key to the User model
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
