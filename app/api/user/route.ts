@@ -45,11 +45,12 @@ export async function POST(req: Request) {
 
     if (!birthDate) {
       errors.birthDate = "Birth date is required";
-    } // Check if 'birthDate' is not a valid date.
-    if (isNaN(Date.parse(birthDate))) {
-      // If 'birthDate' is invalid, 'Date.parse' will return 'NaN' (Not a Number).
-      // 'isNaN' will then return 'true', indicating the date is not valid.
-      errors.birthDate = "Invalid birth date";
+    } else {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}T00:00:00.000Z$/;
+      if (!dateRegex.test(birthDate)) {
+        errors.birthDate =
+          "Invalid birth date. Correct format is YYYY-MM-DDT00:00:00.000Z";
+      }
     }
 
     if (!email) {

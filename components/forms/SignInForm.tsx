@@ -1,17 +1,36 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SignInForm() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const signInData = await signIn("credentials", {
+      email,
+      password,
+    });
+    if (signInData?.error) {
+      console.log(signInData.error);
+    } else {
+      console.log(signInData);
+      router.push("/");
+    }
+  };
+
   return (
     <div className="relative flex flex-col justify-center min-h-screen overflow-hidden mx-auto">
       <div className="w-full p-6 m-auto bg-white rounded-md md:max-w-xl">
         <h1 className="text-3xl font-semibold text-center text-blue-600 mb-12">
           Sign in
         </h1>
-        <form className="mt-6">
+        <form className="mt-6" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="email"

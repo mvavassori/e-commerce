@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Errors {
   name?: string;
@@ -28,9 +29,12 @@ interface NewUser {
 }
 
 export default function SignUpForm() {
+  const router = useRouter();
+
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
-  const [gender, setGender] = useState("");
+  // const [gender, setGender] = useState("");
+  const [gender, setGender] = useState<Gender | "">("");
   const [birthDay, setBirthDay] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthYear, setBirthYear] = useState("");
@@ -39,6 +43,9 @@ export default function SignUpForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [serverErrorMessage, setServerErrorMessage] = useState<string | null>(
+    null
+  );
 
   // Generate options for birth date selectors
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -63,6 +70,8 @@ export default function SignUpForm() {
 
     if (!gender) {
       errors.gender = "Gender is required";
+    } else if (!Object.values(Gender).includes(gender)) {
+      errors.gender = "Invalid gender";
     }
 
     if (!birthDay || !birthMonth || !birthYear) {
@@ -91,7 +100,7 @@ export default function SignUpForm() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitted(true);
 
@@ -103,29 +112,41 @@ export default function SignUpForm() {
       2,
       "0"
     )}-${birthDay.padStart(2, "0")}T00:00:00.000Z`;
-    const upperCaseGender = gender.toUpperCase() as Gender;
 
-    // Convert gender to uppercase for db formatting
-    if (gender === "Male") {
-      setGender("MALE");
-    } else if (gender === "Female") {
-      setGender("FEMALE");
-    } else if (gender === "Other") {
-      setGender("OTHER");
-    }
+    // const upperCaseGender = gender.toUpperCase() as Gender;
 
     if (isFormValid) {
       const newUser: NewUser = {
         name,
         surname,
-        gender: upperCaseGender,
+        gender: gender as Gender,
         birthDate: combinedBirthDate,
         email,
         password,
       };
-      console.log("Form submitted successfully!", newUser);
+      try {
+        const response = await fetch("api/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        });
+
+        if (response.ok) {
+          console.log("Form submitted successfully!", newUser);
+          // Redirect to login page
+          router.push("/signin");
+        } else {
+          const errorData = await response.json();
+          setServerErrorMessage(errorData.message); // Assuming the server responds with a JSON object that has a 'message' property
+        }
+      } catch (error) {
+        // Handle fetch error
+        console.error("An error occurred while sending the data:", error);
+      }
     } else {
-      console.log("Form has errors. Please correct them.");
+      console.error("Registration failed");
     }
   };
 
@@ -148,7 +169,8 @@ export default function SignUpForm() {
               <input
                 onChange={(e) => setName(e.target.value)}
                 value={name}
-                type="name"
+                type="text"
+                placeholder="John"
                 className="block w-full px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
               />
               {isSubmitted && errors.name && (
@@ -166,7 +188,8 @@ export default function SignUpForm() {
               <input
                 onChange={(e) => setSurname(e.target.value)}
                 value={surname}
-                type="surname"
+                type="text"
+                placeholder="Doe"
                 className="block w-full px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
               />
               {isSubmitted && errors.surname && (
@@ -183,14 +206,18 @@ export default function SignUpForm() {
               Gender
             </label>
             {/* Radio options */}
-            {["Male", "Female", "Other"].map((g) => (
+            {["MALE", "FEMALE", "OTHER"].map((g) => (
               <label key={g} className="inline-flex items-center mr-6">
                 <input
                   type="radio"
                   name="gender"
                   value={g}
                   checked={gender === g}
-                  onChange={(e) => setGender(e.target.value)}
+                  onChange={(e) => {
+                    // Convert the selected value to uppercase and check if it's a valid Gender value.
+                    const value = e.target.value as Gender;
+                    setGender(value);
+                  }}
                   className="form-radio"
                 />
                 <span className="ml-2">{g}</span>
@@ -215,7 +242,7 @@ export default function SignUpForm() {
                 value={birthDay}
                 className="block w-24 px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
               >
-                <option value="">Day</option>
+                <option value="">DD</option>
                 {days.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -228,7 +255,7 @@ export default function SignUpForm() {
                 value={birthMonth}
                 className="block w-24 px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
               >
-                <option value="">Month</option>
+                <option value="">MM</option>
                 {months.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -241,7 +268,7 @@ export default function SignUpForm() {
                 value={birthYear}
                 className="block w-24 px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
               >
-                <option value="">Year</option>
+                <option value="">YYYY</option>
                 {years.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -265,6 +292,7 @@ export default function SignUpForm() {
               onChange={(e) => setEmail(e.target.value)}
               value={email}
               type="email"
+              placeholder="john.doe@example.com"
               className="block w-full px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
             {isSubmitted && errors.email && (
@@ -283,6 +311,7 @@ export default function SignUpForm() {
               onChange={(e) => setPassword(e.target.value)}
               value={password}
               type="password"
+              placeholder="Min. 6 Characters"
               className="block w-full px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
             {isSubmitted && errors.password && (
@@ -308,7 +337,17 @@ export default function SignUpForm() {
                 {errors.confirmPassword}
               </p>
             )}
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mb-2">
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
+          {serverErrorMessage && (
+            <div className="text-red-500 text-sm mb-2">
+              {serverErrorMessage}
+            </div>
+          )}
           <div className="mt-6">
             <button className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-blue-700 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
               Sign Up
