@@ -3,10 +3,13 @@ import { useState } from "react";
 import Link from "next/link";
 import HamburgerIcon from "../icons/HamburgerIcon";
 import CloseIcon from "../icons/CloseIcon";
+import { useSession } from "next-auth/react";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMobileMenu = () => setIsOpen(!isOpen);
+
+  const { data: session, status } = useSession();
 
   return (
     <div className="flex w-full">
@@ -17,13 +20,24 @@ export default function MobileMenu() {
       >
         {/* Menu Items */}
         <div className="mt-12 flex flex-col items-start p-4">
-          <Link
-            href="/signin"
-            className="text-lg block p-2 w-full"
-            onClick={toggleMobileMenu}
-          >
-            Sign In
-          </Link>
+          {status === "authenticated" ? (
+            <Link
+              href="/dashboard"
+              className="text-lg block p-2 w-full"
+              onClick={toggleMobileMenu}
+            >
+              Profile
+            </Link>
+          ) : (
+            <Link
+              href="/signin"
+              className="text-lg block p-2 w-full"
+              onClick={toggleMobileMenu}
+            >
+              Sign In
+            </Link>
+          )}
+
           <Link
             href="/"
             className="text-lg block p-2 w-full"

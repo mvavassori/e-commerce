@@ -1,8 +1,12 @@
 import Link from "next/link";
 import MobileMenu from "./mobile-menu";
 import Cart from "../cart";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import UserIcon from "../icons/UserIcon";
 
-export default function Navbar() {
+const Navbar = async () => {
+  const session = await getServerSession(authOptions);
   return (
     <nav className="fixed top-0 left-0 right-0 flex items-center justify-between lg:px-6 p-4 z-50 bg-white">
       <div className="block flex-none md:hidden">
@@ -54,16 +58,25 @@ export default function Navbar() {
         <Search />
       </div> */}
       <div className="flex justify-end md:w-1/3">
-        <Link
-          href="/signin"
-          className="hidden md:block mr-4 text-sm hover:bg-blue-600 justify-end bg-blue-500 text-white px-2 py-1 rounded-full"
-        >
-          Sign In
-        </Link>
+        {session ? (
+          <Link href="/dashboard" className="mr-6 hidden md:block">
+            <UserIcon />
+          </Link>
+        ) : (
+          <Link
+            href="/signin"
+            className="hidden md:block mr-4 text-sm hover:bg-blue-600 justify-end bg-blue-500 text-white px-2 py-1 rounded-full"
+          >
+            Sign In
+          </Link>
+        )}
+
         {/* <Suspense fallback={<OpenCart />}> */}
         <Cart />
         {/* </Suspense> */}
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+// import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "./db";
 import { compare } from "bcrypt";
 
@@ -9,17 +10,13 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signin",
   },
   adapter: PrismaAdapter(db),
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
   providers: [
     CredentialsProvider({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
       name: "Credentials",
-      // The credentials is used to generate a suitable form on the sign in page.
-      // You can specify whatever fields you are expecting to be submitted.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
         email: {
           label: "Email",
@@ -29,13 +26,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid.
-        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-        // You can also use the `req` object to obtain additional parameters
-        // (i.e., the request IP address)
-
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -63,9 +53,41 @@ export const authOptions: NextAuthOptions = {
           name: existingUser.name,
           surname: existingUser.surname,
           gender: existingUser.gender,
-          birthDate: existingUser.birthDate,
+          birthDate: existingUser.birthDate.toISOString(),
         };
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      console.log("asyncjwt token", token);
+      console.log("asyncjwt user", user);
+      if (user) {
+        return {
+          ...token,
+          name: user.name,
+          surname: user.surname,
+          email: user.email,
+          gender: user.gender,
+          birthDate: user.birthDate,
+        };
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      console.log("asyncsession session", session);
+      console.log("asyncsession token", token);
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          name: token.name,
+          surname: token.surname,
+          email: token.email,
+          gender: token.gender,
+          birthDate: token.birthDate,
+        },
+      };
+    },
+  },
 };

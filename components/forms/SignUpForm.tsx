@@ -59,13 +59,13 @@ export default function SignUpForm() {
     if (!name) {
       errors.name = "Name is required";
     } else if (name.length > 30) {
-      errors.name = "Name must be max 30 characters";
+      errors.name = "Name must be max 30 characters long";
     }
 
     if (!surname) {
       errors.surname = "Surname is required";
     } else if (surname.length > 30) {
-      errors.surname = "Surname must be max 30 characters";
+      errors.surname = "Surname must be max 30 characters long";
     }
 
     if (!gender) {
@@ -87,9 +87,9 @@ export default function SignUpForm() {
     if (!password) {
       errors.password = "Password is required";
     } else if (password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+      errors.password = "Password must be at least 6 characters long";
     } else if (password.length > 50) {
-      errors.password = "Password must be max 50 characters";
+      errors.password = "Password must be max 50 characters long";
     }
 
     if (password !== confirmPassword) {

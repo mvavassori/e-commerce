@@ -2,25 +2,61 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+
+interface Errors {
+  email?: string;
+  password?: string;
+}
 
 export default function SignInForm() {
-  const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [errors, setErrors] = useState<Errors>({});
+  const [serverErrorMessage, setServerErrorMessage] = useState<string | null>(
+    null
+  );
+
+  const validateForm = () => {
+    let errors: Errors = {};
+
+    if (!email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Email is invalid";
+    }
+
+    if (!password) {
+      errors.password = "Password is required";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters long";
+    } else if (password.length > 50) {
+      errors.password = "Password must be max 50 characters long";
+    }
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const signInData = await signIn("credentials", {
-      email,
-      password,
-    });
-    if (signInData?.error) {
-      console.log(signInData.error);
+    const isFormValid = validateForm();
+
+    if (isFormValid) {
+      const signInData = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (signInData?.status !== 200) {
+        console.log(signInData);
+        setServerErrorMessage("Something went wrong");
+      } else {
+        // if i do router.push it doesn't update the ui of my server side component. i need to refresh. That's what signIn does without redirect = false
+        window.location.href = "/dashboard";
+      }
     } else {
-      console.log(signInData);
-      router.push("/");
+      console.log("Sign in failed");
     }
   };
 
@@ -44,6 +80,9 @@ export default function SignInForm() {
               type="email"
               className="block w-full px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mb-2">{errors.email}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -58,6 +97,9 @@ export default function SignInForm() {
               type="password"
               className="block w-full px-4 py-2 mt-2 text-blue-700 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm mb-2">{errors.password}</p>
+            )}
           </div>
           <Link
             href="/passwordreset"
@@ -66,7 +108,15 @@ export default function SignInForm() {
             Forget Password?
           </Link>
           <div className="mt-6">
-            <button className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-blue-700 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
+            {serverErrorMessage && (
+              <div className="text-red-500 text-sm mb-2">
+                {serverErrorMessage}
+              </div>
+            )}
+            <button
+              type="submit"
+              className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-blue-700 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+            >
               Sign In
             </button>
           </div>
