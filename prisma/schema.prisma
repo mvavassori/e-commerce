@@ -27,7 +27,7 @@ model User {
   birthDate DateTime
   gender    Gender
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   cart      Cart?
   orders    Order[]
 }
@@ -48,7 +48,7 @@ model Product {
   categoryId  Int
   category    Category         @relation(fields: [categoryId], references: [id])
   createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  updatedAt   DateTime         @default(now()) @updatedAt
   variants    ProductVariant[]
 }
 
@@ -67,7 +67,7 @@ model ProductVariant {
 model Order {
   id        Int         @id @default(autoincrement())
   createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  updatedAt DateTime    @default(now()) @updatedAt
   status    String      @default("PENDING")
   total     Float
   userId    Int
@@ -91,7 +91,7 @@ model Cart {
   user      User       @relation(fields: [userId], references: [id])
   items     CartItem[]
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  updatedAt DateTime   @default(now()) @updatedAt
 }
 
 model CartItem {
@@ -103,7 +103,7 @@ model CartItem {
   quantity         Int
   price            Float
   createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  updatedAt        DateTime        @default(now()) @updatedAt
 }
 
 // Explanation of Each Model and Their Relations:
