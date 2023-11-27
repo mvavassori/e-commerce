@@ -5,17 +5,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Vercel PostreSQL
-// datasource db {
-//   provider = "postgresql"
-//   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-// }
-
-// Supabase
+// Supabase db connection
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 model User {
@@ -32,23 +32,36 @@ model User {
   orders    Order[]
 }
 
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  products    Product[]
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   name        String
   description String
-  price       Float
-  sku         String      @unique
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  inventory   Int
-  cartItems   CartItem[]
-  OrderItem   OrderItem[]
+  sku         String           @unique
+  price       Float // Represents the base price if variants have different prices
+  categoryId  Int
+  category    Category         @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  variants    ProductVariant[]
+}
+
+model ProductVariant {
+  id         Int         @id @default(autoincrement())
+  productId  Int // Foreign key to the Product model
+  product    Product     @relation(fields: [productId], references: [id])
+  price      Float // Specific price for this variant, if different from the base product price
+  sku        String      @unique
+  inventory  Int // Inventory for this specific variant
+  attributes Json // JSON field to store various attributes like color, size, etc.
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 }
 
 model Order {
@@ -63,18 +76,18 @@ model Order {
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  quantity  Int
-  price     Float
-  orderId   Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  id               Int             @id @default(autoincrement())
+  quantity         Int
+  price            Float
+  orderId          Int
+  order            Order           @relation(fields: [orderId], references: [id])
+  productVariantId Int?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
 }
 
 model Cart {
   id        Int        @id @default(autoincrement())
-  userId    Int        @unique // Foreign key to the User model
+  userId    Int        @unique
   user      User       @relation(fields: [userId], references: [id])
   items     CartItem[]
   createdAt DateTime   @default(now())
@@ -82,13 +95,33 @@ model Cart {
 }
 
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  cartId    Int
-  cart      Cart     @relation(fields: [cartId], references: [id])
-  productId Int
-  product   Product  @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               Int             @id @default(autoincrement())
+  cartId           Int
+  cart             Cart            @relation(fields: [cartId], references: [id])
+  productVariantId Int?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  price            Float
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
+
+// Explanation of Each Model and Their Relations:
+
+// - Gender: An enum representing the gender options available for users.
+
+// - User: Represents individuals who use the platform. Each user can have a unique Cart and multiple Orders.
+
+// - Category: This new model represents different categories into which products can be classified, like "Clothing," "Electronics," or "Bags." Each Category can contain many Products. This allows for easy organization and filtering of products on our e-commerce platform.
+
+// - Product: Represents the general type of item we sell, such as "T-shirt" or "Smartphone." It doesn't include specific attributes like size or color; those are handled by the ProductVariant model. Each Product is associated with a Category, indicating the type of product (e.g., a t-shirt might belong to the "Clothing" category).
+
+// - ProductVariant: Represents a specific item with attributes (like "Red T-shirt, Size M"). It is associated with a Product and can be part of many CartItems and OrderItems. This model allows to handle products with different variations, like sizes, colors, or other specific attributes.
+
+// - Order: Represents a completed purchase made by a user. It contains multiple OrderItems, which are instances of ProductVariant that the user has decided to buy.
+
+// - OrderItem: Represents a line item in an Order. It is a particular ProductVariant and includes the quantity and the price of that variant. It relates directly to ProductVariant, allowing for detailed tracking of exactly which version of a product was purchased.
+
+// - Cart: Represents a user's current selection of items they are considering purchasing. It is linked to a User and contains multiple CartItems.
+
+// - CartItem: Represents an item in a Cart. It is a specific ProductVariant that the user might want to buy and includes the quantity and price at the time it was added to the cart. It is directly related to ProductVariant, allowing users to add specific product variations to their cart.

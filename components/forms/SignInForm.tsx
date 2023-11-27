@@ -43,19 +43,30 @@ export default function SignInForm() {
     const isFormValid = validateForm();
 
     if (isFormValid) {
-      const signInData = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      if (signInData?.status !== 200) {
-        console.log(signInData);
-        setServerErrorMessage("Something went wrong");
-      } else {
-        // if i do router.push it doesn't update the ui of my server side component. i need to refresh. That's what signIn does without redirect = false
-        window.location.href = "/dashboard";
+      try {
+        const signInData = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+        if (signInData?.error) {
+          // Handle known errors or generic ones
+          const errorMessage =
+            signInData.error === "CredentialsSignin"
+              ? "Invalid email and/or password"
+              : "An unexpected error occurred, please try again.";
+          setServerErrorMessage(errorMessage);
+        } else {
+          // Successfully signed in
+          window.location.href = "/dashboard";
+        }
+      } catch (error) {
+        // Handle errors from the signIn call itself (e.g., network errors)
+        console.error("Sign in error:", error);
+        setServerErrorMessage("Failed to connect, please try again.");
       }
     } else {
+      // Form validation failed
       console.log("Sign in failed");
     }
   };
