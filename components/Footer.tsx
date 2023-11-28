@@ -40,7 +40,7 @@ export default function Footer() {
         <div>
           <Link
             className="text-base font-bold tracking-wide text-gray-900"
-            href="/"
+            href="/all-products"
           >
             All Products
           </Link>
