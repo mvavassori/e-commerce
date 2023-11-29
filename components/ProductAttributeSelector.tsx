@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ProductVariant } from "@prisma/client";
 
 interface AttributeSelectorProps {
@@ -20,45 +20,64 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
     null
   );
 
+  // In summary, this code collects all unique values for each attribute across all product variants. For example, if you have t-shirts in different sizes and colors, it will create a list of all available sizes and another list of all available colors, without any duplicates.
+  const uniqueAttributes = useMemo(() => {
+    const attributesMap = new Map<string, Set<string>>();
+    variants.forEach((productVariant) => {
+      const attributes = productVariant.attributes as ProductAttribute;
+      if (typeof attributes === "object" && attributes !== null) {
+        Object.entries(attributes).forEach(([key, value]) => {
+          if (!attributesMap.has(key)) {
+            attributesMap.set(key, new Set());
+          }
+          attributesMap.get(key)?.add(value);
+        });
+      }
+    });
+    return attributesMap;
+  }, [variants]);
+
+  useEffect(() => {
+    console.log("Selected Attributes:", selectedAttributes);
+    console.log("Selected Variant:", selectedVariant);
+  }, [selectedAttributes, selectedVariant]);
+
+  useEffect(() => {
+    // Ensure there are selected attributes
+    if (Object.keys(selectedAttributes).length > 0) {
+      // Check if all necessary attributes are selected
+      const allAttributesSelected = Array.from(uniqueAttributes.keys()).every(
+        (key) => selectedAttributes[key]
+      );
+
+      if (allAttributesSelected) {
+        const foundVariant = variants.find((variant) => {
+          const attributes = variant.attributes as ProductAttribute;
+          if (typeof attributes === "object" && attributes !== null) {
+            return Object.entries(selectedAttributes).every(
+              ([key, value]) => attributes[key] === value
+            );
+          }
+          return false;
+        });
+
+        setSelectedVariant(foundVariant ?? null);
+      } else {
+        // Reset selectedVariant if not all attributes are selected
+        setSelectedVariant(null);
+      }
+    } else {
+      // Reset selectedVariant if no attributes are selected
+      setSelectedVariant(null);
+    }
+  }, [selectedAttributes, variants, uniqueAttributes]);
+
   const handleButtonClick = (attributeName: string, value: string) => {
     setSelectedAttributes((prev) => ({
       ...prev,
       [attributeName]: value,
     }));
   };
-
-  useEffect(() => {
-    console.log("Selected Attributes:", selectedAttributes);
-  }, [selectedAttributes]);
-
-  useEffect(() => {
-    const foundVariant = variants.find((variant) => {
-      const attributes = variant.attributes as ProductAttribute;
-      if (typeof attributes === "object" && attributes !== null) {
-        return Object.entries(selectedAttributes).every(
-          ([key, value]) => attributes[key] === value
-        );
-      }
-      return false;
-    });
-
-    setSelectedVariant(foundVariant ?? null);
-  }, [selectedAttributes, variants]);
-
-  // In summary, this code collects all unique values for each attribute across all product variants. For example, if you have t-shirts in different sizes and colors, it will create a list of all available sizes and another list of all available colors, without any duplicates.
-  const uniqueAttributes = new Map<string, Set<string>>();
-
-  variants.forEach((productVariant) => {
-    const attributes = productVariant.attributes as ProductAttribute;
-    if (typeof attributes === "object" && attributes !== null) {
-      Object.entries(attributes).forEach(([key, value]) => {
-        if (!uniqueAttributes.has(key)) {
-          uniqueAttributes.set(key, new Set());
-        }
-        uniqueAttributes.get(key)?.add(value);
-      });
-    }
-  });
 
   return (
     <div>

@@ -95,8 +95,7 @@ export default async function ProductPage({
         <p className="font-semibold text-lg mt-4">
           $ {productWithVariants?.price}
         </p>
-        <div>
-          {/* In summary, this code dynamically generates sections for each unique product attribute (like "Size" or "Color"), and under each section, it generates buttons for each attribute value (like "XS", "S", "M" for size).  */}
+        {/* <div>
           {Array.from(uniqueAttributes).map(([attributeName, values]) => (
             <div key={attributeName}>
               <p className="font-semibold mt-6">
@@ -108,14 +107,14 @@ export default async function ProductPage({
                     key={value}
                     className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3"
                   >
-                    {/* {value.charAt(0).toUpperCase() + value.slice(1)} */}
+                    
                     {value.toUpperCase()}
                   </button>
                 ))}
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
         <ProductAttributeSelector
           variants={productWithVariants.variants}
           // onSelectionChange={handleSelectionChange}
