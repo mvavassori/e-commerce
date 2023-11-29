@@ -1,8 +1,7 @@
 import Image from "next/image";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-
-// export const dynamicParams = false;
+import ProductAttributeSelector from "@/components/ProductAttributeSelector";
 
 interface ProductAttribute {
   [key: string]: string;
@@ -10,7 +9,6 @@ interface ProductAttribute {
 
 export async function generateStaticParams() {
   const products = await db.product.findMany();
-  // console.log(product);
   return products.map((product) => ({
     sku: product.sku,
   }));
@@ -33,7 +31,7 @@ export default async function ProductPage({
     return notFound();
   }
 
-  // Extract unique attributes
+  // In summary, this code collects all unique values for each attribute across all product variants. For example, if you have t-shirts in different sizes and colors, it will create a list of all available sizes and another list of all available colors, without any duplicates.
   const uniqueAttributes = new Map<string, Set<string>>();
 
   productWithVariants.variants.forEach((product) => {
@@ -48,7 +46,12 @@ export default async function ProductPage({
     }
   });
 
-  // console.log(productWithVariants.variants);
+  // const handleSelectionChange = (selectedVariant: ProductVariant | null) => {
+  //   console.log("Selected Variant:", selectedVariant);
+  //   // Additional actions based on the selected variant
+  // };
+
+  console.log(productWithVariants.variants);
   console.log(uniqueAttributes);
 
   return (
@@ -93,6 +96,7 @@ export default async function ProductPage({
           $ {productWithVariants?.price}
         </p>
         <div>
+          {/* In summary, this code dynamically generates sections for each unique product attribute (like "Size" or "Color"), and under each section, it generates buttons for each attribute value (like "XS", "S", "M" for size).  */}
           {Array.from(uniqueAttributes).map(([attributeName, values]) => (
             <div key={attributeName}>
               <p className="font-semibold mt-6">
@@ -104,13 +108,18 @@ export default async function ProductPage({
                     key={value}
                     className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3"
                   >
-                    {value.charAt(0).toUpperCase() + value.slice(1)}
+                    {/* {value.charAt(0).toUpperCase() + value.slice(1)} */}
+                    {value.toUpperCase()}
                   </button>
                 ))}
               </div>
             </div>
           ))}
         </div>
+        <ProductAttributeSelector
+          variants={productWithVariants.variants}
+          // onSelectionChange={handleSelectionChange}
+        />
         {/* <p className="font-semibold mt-6">Size</p>
         <div className="flex flex-wrap gap-2">
           <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
