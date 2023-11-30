@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { ProductVariant } from "@prisma/client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import AddToCart from "./cart/add-to-cart";
 
 interface AttributeSelectorProps {
   variants: ProductVariant[];
@@ -21,6 +22,7 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
   //state variables
   const [selectedAttributes, setSelectedAttributes] =
     useState<ProductAttribute>({});
+  //TODO do something with the selected variant. e.g. add to cart
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
@@ -41,24 +43,6 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
     });
     return attributesMap;
   }, [variants]);
-
-  //test
-  useEffect(() => {
-    console.log("Selected Attributes:", selectedAttributes);
-    console.log("Selected Variant:", selectedVariant);
-  }, [selectedAttributes, selectedVariant]);
-
-  //test
-  // useEffect(() => {
-  //   const url = `${pathname}?${searchParams}`;
-  //   console.log(url);
-  //   let params = new URLSearchParams(url);
-  //   params.set("size", "xs");
-  //   router.push(`${pathname}?${params.toString()}`);
-  //   console.log(params);
-  //   // You can now use the current URL
-  //   // ...
-  // }, [pathname, searchParams]);
 
   useEffect(() => {
     // Ensure there are selected attributes
@@ -118,7 +102,7 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
     // or const query = `${"?".repeat(search.length && 1)}${search}`;
     const query = attributes ? `?${attributes}` : "";
 
-    router.push(`${pathname}${query}`);
+    router.push(`${pathname}${query}`, { scroll: false });
 
     setSelectedAttributes((prev) => ({
       ...prev,
@@ -155,6 +139,7 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
           </div>
         </div>
       ))}
+      <AddToCart selectedVariant={selectedVariant} />
     </>
   );
 };

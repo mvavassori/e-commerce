@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import ProductAttributeSelector from "@/components/ProductAttributeSelector";
+import ProductVariant from "@/components/ProductVariant";
 
 interface ProductAttribute {
   [key: string]: string;
@@ -115,7 +115,7 @@ export default async function ProductPage({
             </div>
           ))}
         </div> */}
-        <ProductAttributeSelector
+        <ProductVariant
           variants={productWithVariants.variants}
           // onSelectionChange={handleSelectionChange}
         />
@@ -143,11 +143,11 @@ export default async function ProductPage({
             Blue
           </button>
         </div> */}
-        <div>
+        {/* <div>
           <button className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white py-2 px-16 rounded-full my-14 font-semibold">
             Add to Cart
           </button>
-        </div>
+        </div> */}
         <p className="text-sm">{productWithVariants?.description}</p>
       </div>
     </div>
