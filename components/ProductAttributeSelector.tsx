@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { ProductVariant } from "@prisma/client";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 interface AttributeSelectorProps {
   variants: ProductVariant[];
@@ -13,6 +14,10 @@ interface ProductAttribute {
 const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
   variants,
 }) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   //state variables
   const [selectedAttributes, setSelectedAttributes] =
     useState<ProductAttribute>({});
@@ -37,10 +42,23 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
     return attributesMap;
   }, [variants]);
 
+  //test
   useEffect(() => {
     console.log("Selected Attributes:", selectedAttributes);
     console.log("Selected Variant:", selectedVariant);
   }, [selectedAttributes, selectedVariant]);
+
+  //test
+  // useEffect(() => {
+  //   const url = `${pathname}?${searchParams}`;
+  //   console.log(url);
+  //   let params = new URLSearchParams(url);
+  //   params.set("size", "xs");
+  //   router.push(`${pathname}?${params.toString()}`);
+  //   console.log(params);
+  //   // You can now use the current URL
+  //   // ...
+  // }, [pathname, searchParams]);
 
   useEffect(() => {
     // Ensure there are selected attributes
@@ -72,7 +90,36 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
     }
   }, [selectedAttributes, variants, uniqueAttributes]);
 
+  useEffect(() => {
+    // Check if router is ready and has query parameters
+    if (searchParams) {
+      const initialAttributes: ProductAttribute = {};
+      // Iterate over the URLSearchParams
+      const queryParams = new URLSearchParams(
+        Array.from(searchParams.entries())
+      );
+      queryParams.forEach((value, key) => {
+        initialAttributes[key] = value;
+      });
+
+      // Update state with the initial attributes from the URL
+      setSelectedAttributes(initialAttributes);
+    }
+  }, [searchParams]);
+
   const handleButtonClick = (attributeName: string, value: string) => {
+    // now you got a read/write object
+    const queryParams = new URLSearchParams(Array.from(searchParams.entries()));
+
+    queryParams.set(attributeName, value);
+
+    // cast to string
+    const attributes = queryParams.toString();
+    // or const query = `${"?".repeat(search.length && 1)}${search}`;
+    const query = attributes ? `?${attributes}` : "";
+
+    router.push(`${pathname}${query}`);
+
     setSelectedAttributes((prev) => ({
       ...prev,
       [attributeName]: value,
@@ -80,26 +127,35 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
   };
 
   return (
-    <div>
+    <>
       {/* In summary, this code dynamically generates sections for each unique product attribute (like "Size" or "Color"), and under each section, it generates buttons for each attribute value (like "XS", "S", "M" for size).  */}
       {Array.from(uniqueAttributes).map(([attributeName, values]) => (
         <div key={attributeName}>
           <p className="font-semibold mt-6">{attributeName.toUpperCase()}</p>
           <div className="flex flex-wrap gap-2">
-            {Array.from(values).map((value) => (
-              <button
-                key={value}
-                className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3"
-                onClick={() => handleButtonClick(attributeName, value)}
-              >
-                {/* {value.charAt(0).toUpperCase() + value.slice(1)} */}
-                {value.toUpperCase()}
-              </button>
-            ))}
+            {Array.from(values).map((value) => {
+              // Determine if this value is selected
+              const isSelected = selectedAttributes[attributeName] === value;
+
+              // Conditional class
+              const buttonClass = isSelected
+                ? "border-3 border-gray-400 ring-blue-400 ring-2 bg-blue-200 px-2 rounded-full mt-3"
+                : "border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3";
+
+              return (
+                <button
+                  key={value}
+                  className={buttonClass}
+                  onClick={() => handleButtonClick(attributeName, value)}
+                >
+                  {value.toUpperCase()}
+                </button>
+              );
+            })}
           </div>
         </div>
       ))}
-    </div>
+    </>
   );
 };
 

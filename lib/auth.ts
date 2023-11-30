@@ -60,8 +60,8 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log("asyncjwt token", token);
-      console.log("asyncjwt user", user);
+      // console.log("asyncjwt token", token);
+      // console.log("asyncjwt user", user);
       if (user) {
         return {
           ...token,
@@ -75,8 +75,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log("asyncsession session", session);
-      console.log("asyncsession token", token);
+      // console.log("asyncsession session", session);
+      // console.log("asyncsession token", token);
       return {
         ...session,
         user: {
