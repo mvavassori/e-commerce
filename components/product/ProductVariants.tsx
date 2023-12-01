@@ -2,18 +2,20 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { ProductVariant } from "@prisma/client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import AddToCart from "./cart/add-to-cart";
+import AddToCart from "../cart/AddToCartButton";
 
-interface AttributeSelectorProps {
+interface ProductVariantProps {
   variants: ProductVariant[];
+  basePrice: number;
 }
 
 interface ProductAttribute {
   [key: string]: string;
 }
 
-const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
+const ProductVariants: React.FC<ProductVariantProps> = ({
   variants,
+  basePrice,
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,7 +24,6 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
   //state variables
   const [selectedAttributes, setSelectedAttributes] =
     useState<ProductAttribute>({});
-  //TODO do something with the selected variant. e.g. add to cart
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
@@ -83,7 +84,10 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
         Array.from(searchParams.entries())
       );
       queryParams.forEach((value, key) => {
-        initialAttributes[key] = value;
+        if (uniqueAttributes.has(key)) {
+          // Check if the key is known
+          initialAttributes[key] = value;
+        }
       });
 
       // Update state with the initial attributes from the URL
@@ -112,6 +116,9 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
 
   return (
     <>
+      <p className="font-semibold text-lg mt-4">
+        $ {selectedVariant?.price || basePrice}
+      </p>
       {/* In summary, this code dynamically generates sections for each unique product attribute (like "Size" or "Color"), and under each section, it generates buttons for each attribute value (like "XS", "S", "M" for size).  */}
       {Array.from(uniqueAttributes).map(([attributeName, values]) => (
         <div key={attributeName}>
@@ -144,4 +151,4 @@ const ProductAttributeSelector: React.FC<AttributeSelectorProps> = ({
   );
 };
 
-export default ProductAttributeSelector;
+export default ProductVariants;

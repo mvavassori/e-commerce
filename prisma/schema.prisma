@@ -50,26 +50,26 @@ model Product {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @default(now()) @updatedAt
   variants    ProductVariant[]
+  images      ProductImage[]
 }
 
 model ProductVariant {
-  id         Int                   @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   productId  Int // Foreign key to the Product model
-  product    Product               @relation(fields: [productId], references: [id])
+  product    Product     @relation(fields: [productId], references: [id])
   price      Float // Specific price for this variant, if different from the base product price
-  sku        String                @unique
+  sku        String      @unique
   inventory  Int // Inventory for this specific variant
   attributes Json // JSON field to store various attributes like color, size, etc.
-  images     ProductVariantImage[]
   cartItems  CartItem[]
   orderItems OrderItem[]
 }
 
-model ProductVariantImage {
-  id               Int            @id @default(autoincrement())
-  productVariantId Int
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
-  url              String
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int // Foreign key to the Product model
+  product   Product @relation(fields: [productId], references: [id])
+  url       String
 }
 
 model Order {

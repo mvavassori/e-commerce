@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import ProductVariant from "@/components/ProductVariant";
+import { ProductImage } from "@prisma/client";
+import ProductVariants from "@/components/product/ProductVariants";
+import ProductImages from "@/components/product/ProductImages";
 
 interface ProductAttribute {
   [key: string]: string;
@@ -25,6 +27,7 @@ export default async function ProductPage({
     },
     include: {
       variants: true, // Include all related variants
+      images: true, // Include all related images
     },
   });
   if (!productWithVariants) {
@@ -46,108 +49,49 @@ export default async function ProductPage({
     }
   });
 
-  // const handleSelectionChange = (selectedVariant: ProductVariant | null) => {
-  //   console.log("Selected Variant:", selectedVariant);
-  //   // Additional actions based on the selected variant
-  // };
-
-  console.log(productWithVariants.variants);
-  console.log(uniqueAttributes);
+  // console.log(productWithVariants.variants);
+  // console.log(uniqueAttributes);
+  console.log(productWithVariants.images);
 
   return (
     <div className="md:flex px-4 sm:px-6 lg:px-20 mt-10 mb-12">
-      <div className="w-full h-full">
+      <ProductImages
+        images={productWithVariants?.images}
+        productName={productWithVariants?.name}
+      />
+      {/* <div className="w-full h-full">
         <Image
-          src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src={productWithVariants.images[0].url}
           alt="product"
           width={500}
           height={500}
           className="object-contain mx-auto"
         />
         <div className="flex flex-wrap gap-6 mt-16 mb-12 justify-center">
-          <Image
-            src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="product"
-            width={500}
-            height={500}
-            className="object-fit w-20 h-20 cursor-pointer rounded border-2 border-gray-300"
-          />
-          <Image
-            src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="product"
-            width={500}
-            height={500}
-            className="object-fit w-20 h-20 cursor-pointer rounded border-2 border-gray-300"
-          />
-          <Image
-            src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="product"
-            width={500}
-            height={500}
-            className="object-fit w-20 h-20 cursor-pointer rounded border-2 border-gray-300"
-          />
+          {productWithVariants.images.length > 1 &&
+            productWithVariants.images.map((image: ProductImage) => (
+              <Image
+                key={image.id}
+                src={image.url}
+                alt={productWithVariants.name + "image"}
+                width={500}
+                height={500}
+                className="object-fit w-20 h-20 cursor-pointer rounded border-2 border-gray-300"
+              />
+            ))}
         </div>
-      </div>
+      </div> */}
       <div className="md:w-2/5">
         <h1 className="text-3xl md:text-5xl font-bold">
           {productWithVariants?.name}
         </h1>
-        <p className="font-semibold text-lg mt-4">
+        {/* <p className="font-semibold text-lg mt-4">
           $ {productWithVariants?.price}
-        </p>
-        {/* <div>
-          {Array.from(uniqueAttributes).map(([attributeName, values]) => (
-            <div key={attributeName}>
-              <p className="font-semibold mt-6">
-                {attributeName.toUpperCase()}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {Array.from(values).map((value) => (
-                  <button
-                    key={value}
-                    className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3"
-                  >
-                    
-                    {value.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div> */}
-        <ProductVariant
-          variants={productWithVariants.variants}
-          // onSelectionChange={handleSelectionChange}
+        </p> */}
+        <ProductVariants
+          variants={productWithVariants?.variants}
+          basePrice={productWithVariants?.price}
         />
-        {/* <p className="font-semibold mt-6">Size</p>
-        <div className="flex flex-wrap gap-2">
-          <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
-            XS
-          </button>
-          <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
-            S
-          </button>
-          <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
-            M
-          </button>
-        </div>
-        <p className="font-semibold mt-6">Color</p>
-        <div className="flex flex-wrap gap-2">
-          <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
-            White
-          </button>
-          <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
-            Black
-          </button>
-          <button className="border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3">
-            Blue
-          </button>
-        </div> */}
-        {/* <div>
-          <button className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white py-2 px-16 rounded-full my-14 font-semibold">
-            Add to Cart
-          </button>
-        </div> */}
         <p className="text-sm">{productWithVariants?.description}</p>
       </div>
     </div>

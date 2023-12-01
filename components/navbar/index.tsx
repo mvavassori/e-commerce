@@ -1,5 +1,5 @@
 import Link from "next/link";
-import MobileMenu from "./mobile-menu";
+import MobileMenu from "./MobileMenu";
 import Cart from "../cart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -26,7 +26,7 @@ const Navbar = async () => {
           </li>
           <li>
             <Link
-              href="/product/tshirt"
+              href="/product/TS-001"
               className="underline-offset-4 hover:underline"
             >
               Product
