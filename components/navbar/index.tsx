@@ -4,6 +4,8 @@ import Cart from "../cart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import UserIcon from "../icons/UserIcon";
+import CartIcon from "../icons/CartIcon";
+import { Suspense } from "react";
 
 const Navbar = async () => {
   const session = await getServerSession(authOptions);
@@ -71,9 +73,9 @@ const Navbar = async () => {
           </Link>
         )}
 
-        {/* <Suspense fallback={<OpenCart />}> */}
-        <Cart />
-        {/* </Suspense> */}
+        <Suspense fallback={<CartIcon />}>
+          <Cart />
+        </Suspense>
       </div>
     </nav>
   );
