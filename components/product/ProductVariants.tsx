@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ProductVariant } from "@prisma/client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import AddToCart from "../cart/AddToCart";
-import QuantityInput from "./QuantityInput";
+import QuantityInput from "../QuantityInput";
 
 interface ProductVariantProps {
   variants: ProductVariant[];

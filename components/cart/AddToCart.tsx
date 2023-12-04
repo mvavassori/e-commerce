@@ -11,7 +11,6 @@ interface AddToCartProps {
 interface UnauthenticatedCartItem {
   productVariantId: number;
   quantity: number;
-  price: number; // If you're storing price in the cart item
 }
 
 const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {

@@ -73,9 +73,9 @@ const Navbar = async () => {
           </Link>
         )}
 
-        <Suspense fallback={<CartIcon />}>
-          <Cart />
-        </Suspense>
+        {/* <Suspense fallback={<CartIcon />}> */}
+        <Cart />
+        {/* </Suspense> */}
       </div>
     </nav>
   );
