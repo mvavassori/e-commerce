@@ -1,7 +1,5 @@
-import Image from "next/image";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import { ProductImage } from "@prisma/client";
 import ProductVariants from "@/components/product/ProductVariants";
 import ProductImages from "@/components/product/ProductImages";
 

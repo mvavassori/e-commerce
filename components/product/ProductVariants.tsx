@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { ProductVariant } from "@prisma/client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import AddToCart from "../cart/AddToCartButton";
+import AddToCart from "../cart/AddToCart";
+import QuantityInput from "./QuantityInput";
 
 interface ProductVariantProps {
   variants: ProductVariant[];
@@ -27,6 +28,7 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
+  const [quantity, setQuantity] = useState(1);
 
   // In summary, this code collects all unique values for each attribute across all product variants. For example, if you have t-shirts in different sizes and colors, it will create a list of all available sizes and another list of all available colors, without any duplicates.
   const uniqueAttributes = useMemo(() => {
@@ -114,6 +116,11 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
     }));
   };
 
+  const handleQuantityChange = (quantity: number) => {
+    console.log("Selected Quantity:", quantity);
+    setQuantity(quantity);
+  };
+
   return (
     <>
       <p className="font-semibold text-lg mt-4">
@@ -146,7 +153,8 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
           </div>
         </div>
       ))}
-      <AddToCart selectedVariant={selectedVariant} />
+      <QuantityInput onChange={handleQuantityChange} />
+      <AddToCart selectedVariant={selectedVariant} quantity={quantity} />
     </>
   );
 };
