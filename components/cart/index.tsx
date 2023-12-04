@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import CloseIcon from "../icons/CloseIcon";
 import CartIcon from "../icons/CartIcon";
 import QuantityInput from "../QuantityInput";
+import { useSession } from "next-auth/react";
 
-interface LocalCart {
+interface LocalCartItem {
   productVariantId: string;
   quantity: number;
 }
 
 export default function Cart() {
+  const { data: session, status } = useSession();
+
   const [isOpen, setIsOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [cartItems, setCartItems] = useState([]);
@@ -21,15 +25,22 @@ export default function Cart() {
   // Close the cart when the overlay is clicked
   const closeCart = () => setIsOpen(false);
 
-  // Retrieve cart items from localStorage
-  const localCart: LocalCart[] | null = JSON.parse(
-    localStorage.getItem("cart") || "[]"
-  );
+  useEffect(() => {
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      // Retrieve cart items from localStorage
+      const localCart: LocalCartItem[] | null = JSON.parse(
+        localStorage.getItem("cart") || "[]"
+      );
+      if (localCart) {
+        fetchItemDetails(localCart);
+      }
+    }
+  }, [status]);
 
-  //TODO non definitivo, è solo un test.
-  const fetchCartData = async () => {
+  const fetchItemDetails = async (localCart: LocalCartItem[]) => {
     // Make API call to add item to cart in database
-    const response = await fetch("/api/cart", {
+    const response = await fetch("/api/item-details", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,6 +51,10 @@ export default function Cart() {
     });
 
     const data = await response.json();
+
+    // console.log(data); // Handle the response data
+
+    setCartItems(data);
   };
 
   return (
@@ -75,16 +90,22 @@ export default function Cart() {
                     key={item.id}
                     className="flex items-center justify-between"
                   >
-                    {/* <Image src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover" /> */}
+                    <Image
+                      src={item.product.images[0].url}
+                      alt={item.product.name}
+                      height={50}
+                      width={50}
+                      className="w-20 h-20 object-cover"
+                    />
                     <div>
-                      <p>Item Name</p>
-                      <p>$ 13.98</p>
+                      <p>{item.product.name}</p>
+                      <p>{item.price}</p>
                     </div>
                     <QuantityInput
                       onChange={() => setQuantity(quantity)}
                       // Add onChange handler to update quantity
                     />
-                    <p>$ 10</p>
+                    <p>$ {item.price * quantity}</p>
                     <button
                     // Add onClick handler to remove item
                     >

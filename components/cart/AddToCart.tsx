@@ -21,7 +21,7 @@ const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
 
   const { data: session, status } = useSession();
 
-  console.log("addtocartselectedvariantandnquantity", itemsToBuy);
+  // console.log("addtocartselectedvariantandnquantity", itemsToBuy);
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
@@ -30,7 +30,7 @@ const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
 
     if (status === "authenticated") {
       // Make API call to add item to cart in database
-      const response = await fetch("/api/cart", {
+      const response = await fetch("/api/add-to-cart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
