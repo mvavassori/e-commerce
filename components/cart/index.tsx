@@ -6,19 +6,31 @@ import Image from "next/image";
 import CloseIcon from "../icons/CloseIcon";
 import CartIcon from "../icons/CartIcon";
 import QuantityInput from "../QuantityInput";
-import { useSession } from "next-auth/react";
+import { ProductVariant, Product, ProductImage } from "@prisma/client";
 
-interface LocalCartItem {
-  productVariantId: string;
+interface LocalStorageCartItem {
+  productVariantId: number;
+  quantity: number;
+}
+
+interface FetchedItem extends ProductVariant {
+  product: Product & {
+    images: ProductImage[];
+  };
+}
+
+interface ExtendedProductVariant extends FetchedItem {
   quantity: number;
 }
 
 export default function Cart() {
-  const { data: session, status } = useSession();
-
   const [isOpen, setIsOpen] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const [cartItems, setCartItems] = useState([]);
+  // Array state to store the combined product variant details and quantities
+  const [fetchedItems, setFecthedItems] = useState<ExtendedProductVariant[]>(
+    []
+  );
+  // Array state to store product variant details fetched from the backend
+  const [cartItems, setCartItems] = useState<ExtendedProductVariant[]>([]);
 
   const toggleCartMenu = () => setIsOpen(!isOpen);
 
@@ -26,20 +38,34 @@ export default function Cart() {
   const closeCart = () => setIsOpen(false);
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (status === "unauthenticated") {
-      // Retrieve cart items from localStorage
-      const localCart: LocalCartItem[] | null = JSON.parse(
-        localStorage.getItem("cart") || "[]"
-      );
-      if (localCart) {
-        fetchItemDetails(localCart);
-      }
+    // Fetch item details when the component mounts or when localStorage changes
+    const localCart: LocalStorageCartItem[] = JSON.parse(
+      localStorage.getItem("cart") || "[]"
+    );
+    if (localCart.length > 0) {
+      fetchItemDetails(localCart);
     }
-  }, [status]);
+  }, []);
 
-  const fetchItemDetails = async (localCart: LocalCartItem[]) => {
-    // Make API call to add item to cart in database
+  useEffect(() => {
+    // Combine fetched items with localStorage quantities
+    const localCart: LocalStorageCartItem[] = JSON.parse(
+      localStorage.getItem("cart") || "[]"
+    );
+    const combinedCartItems = fetchedItems.map((item) => {
+      const localItem = localCart.find(
+        (local) => local.productVariantId === item.id
+      );
+      return {
+        ...item,
+        quantity: localItem ? localItem.quantity : 0,
+      };
+    });
+
+    setCartItems(combinedCartItems);
+  }, [fetchedItems]);
+
+  const fetchItemDetails = async (localCart: LocalStorageCartItem[]) => {
     const response = await fetch("/api/item-details", {
       method: "POST",
       headers: {
@@ -52,9 +78,47 @@ export default function Cart() {
 
     const data = await response.json();
 
-    // console.log(data); // Handle the response data
+    console.log(data);
 
-    setCartItems(data);
+    setFecthedItems(data);
+  };
+
+  const handleQuantityChange = (itemId: number, newQuantity: number) => {
+    // Update cartItems state
+    const updatedCartItems = cartItems.map((item) => {
+      if (item.id === itemId) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+
+    setCartItems(updatedCartItems);
+
+    // Update localStorage
+    updateLocalStorageCart(itemId, newQuantity);
+  };
+
+  const updateLocalStorageCart = (itemId: number, newQuantity: number) => {
+    const localCart: LocalStorageCartItem[] = JSON.parse(
+      localStorage.getItem("cart") || "[]"
+    );
+    const updatedLocalCart = localCart.map((cartItem) => {
+      if (cartItem.productVariantId === itemId) {
+        return { ...cartItem, quantity: newQuantity };
+      }
+      return cartItem;
+    });
+
+    localStorage.setItem("cart", JSON.stringify(updatedLocalCart));
+  };
+
+  const calculateSubtotal = () => {
+    let subTotal = cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+
+    return subTotal.toFixed(2);
   };
 
   return (
@@ -85,7 +149,7 @@ export default function Cart() {
             ) : (
               <div>
                 {/* Cart Items */}
-                {cartItems.map((item: any) => (
+                {cartItems.map((item: ExtendedProductVariant) => (
                   <div
                     key={item.id}
                     className="flex items-center justify-between"
@@ -99,16 +163,16 @@ export default function Cart() {
                     />
                     <div>
                       <p>{item.product.name}</p>
-                      <p>{item.price}</p>
+                      <p>$ {item.price.toFixed(2)}</p>
                     </div>
                     <QuantityInput
-                      onChange={() => setQuantity(quantity)}
-                      // Add onChange handler to update quantity
+                      initialQuantity={item.quantity}
+                      onChange={(newQuantity) =>
+                        handleQuantityChange(item.id, newQuantity)
+                      }
                     />
-                    <p>$ {item.price * quantity}</p>
-                    <button
-                    // Add onClick handler to remove item
-                    >
+                    <p>$ {(item.price * item.quantity).toFixed(2)}</p>
+                    <button onClick={() => console.log("Remove item")}>
                       Remove
                     </button>
                   </div>
@@ -116,13 +180,17 @@ export default function Cart() {
 
                 {/* Cart Summary */}
                 <div>
-                  <p>Subtotal: $ 100</p>
-                  <button>Proceed to Checkout</button>
+                  <p>Subtotal: $ {calculateSubtotal()}</p>
+                  <Link
+                    href="/checkout"
+                    className="bg-blue-500 text-white py-2 px-16 rounded-full font-semibold"
+                  >
+                    Proceed to Checkout
+                  </Link>
                 </div>
               </div>
             )}
           </div>
-          {/* TODO cart elements */}
         </div>
       </div>
       {/* Toggle Button */}

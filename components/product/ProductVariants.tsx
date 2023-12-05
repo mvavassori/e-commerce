@@ -98,6 +98,10 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
   }, [searchParams]);
 
   const handleButtonClick = (attributeName: string, value: string) => {
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      [attributeName]: value,
+    }));
     // now you got a read/write object
     const queryParams = new URLSearchParams(Array.from(searchParams.entries()));
 
@@ -109,11 +113,6 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
     const query = attributes ? `?${attributes}` : "";
 
     router.push(`${pathname}${query}`, { scroll: false });
-
-    setSelectedAttributes((prev) => ({
-      ...prev,
-      [attributeName]: value,
-    }));
   };
 
   const handleQuantityChange = (quantity: number) => {
