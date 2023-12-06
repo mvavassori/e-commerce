@@ -47,6 +47,8 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
     return attributesMap;
   }, [variants]);
 
+  // console.log(uniqueAttributes);
+
   useEffect(() => {
     // Ensure there are selected attributes
     if (Object.keys(selectedAttributes).length > 0) {

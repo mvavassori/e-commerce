@@ -2,6 +2,7 @@
 import React from "react";
 import { ProductVariant } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import { useCart } from "@/context/CartContext";
 
 interface AddToCartProps {
   selectedVariant: ProductVariant | null;
@@ -19,9 +20,10 @@ const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
     quantity,
   };
 
-  const { data: session, status } = useSession();
+  //todo
+  const { addItemToCart } = useCart();
 
-  // console.log("addtocartselectedvariantandnquantity", itemsToBuy);
+  const { data: session, status } = useSession();
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
@@ -42,32 +44,10 @@ const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
       });
 
       const data = await response.json();
-      console.log(data); // Handle the response data
+      // console.log(data);
     } else {
-      // Add item to cart in localStorage
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const cartItem = {
-        productVariantId: selectedVariant.id,
-        quantity: quantity,
-      };
-
-      // Check if item already exists in cart
-      const existingItemIndex = cart.findIndex(
-        (item: UnauthenticatedCartItem) =>
-          item.productVariantId === selectedVariant.id
-      );
-
-      if (existingItemIndex !== -1) {
-        // Update quantity of existing item
-        cart[existingItemIndex].quantity += quantity;
-      } else {
-        // Add new item to cart
-        cart.push(cartItem);
-      }
-
-      // Save updated cart back to localStorage
-      localStorage.setItem("cart", JSON.stringify(cart));
-      console.log("Item added to local cart:", cartItem);
+      // Add item to cart in localStorage and update cart's state
+      addItemToCart(selectedVariant.id, quantity);
     }
   };
 

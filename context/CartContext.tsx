@@ -20,14 +20,20 @@ interface ExtendedProductVariant extends FetchedItem {
 
 interface CartContextType {
   cartItems: ExtendedProductVariant[];
-  addCartItem: (newItem: LocalStorageCartItem) => void;
-  updateCartItemQuantity: (itemId: number, quantity: number) => void;
-  fetchCartItems: () => void;
+  addItemToCart: (newItemId: number, quantity: number) => void;
+  handleQuantityChange: (itemId: number, quantity: number) => void;
+  fetchItemDetails: (localCart: LocalStorageCartItem[]) => void;
+  subTotal: number;
+  removeItemFromCart: (itemId: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+export const CartContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   // Array state to store the combined product variant details and quantities
   const [fetchedItems, setFecthedItems] = useState<FetchedItem[]>([]);
   // Array state to store product variant details fetched from the backend
@@ -62,6 +68,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCartItems(combinedCartItems);
   }, [fetchedItems]);
 
+  useEffect(() => {
+    if (cartItems) {
+      calculateSubtotal();
+    }
+  }, [cartItems]);
+
   const fetchItemDetails = async (localCart: LocalStorageCartItem[]) => {
     const response = await fetch("/api/item-details", {
       method: "POST",
@@ -75,7 +87,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const data = await response.json();
 
-    console.log(data);
+    // console.log(data);
 
     setFecthedItems(data);
   };
@@ -117,59 +129,72 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setSubTotal(subTotalCalc);
   };
 
-  // Function to fetch cart items details
-  const fetchCartItems = async () => {
-    // Similar to your existing fetchItemDetails logic
-  };
-
-  // Add a new item to the cart
-  const addCartItem = (
-    newItem: LocalStorageCartItem,
-    selectedVariant: ProductVariant
-  ) => {
+  // Add a new item to the cart //todo in AddToCart
+  const addItemToCart = async (newItemId: number, quantity: number) => {
     // Add item to cart in localStorage
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const cartItem = {
-      productVariantId: newItem.productVariantId,
-      quantity: newItem.quantity,
+
+    const newCartItem = {
+      productVariantId: newItemId,
+      quantity: quantity,
     };
 
     // Check if item already exists in cart
     const existingItemIndex = cart.findIndex(
-      (item: LocalStorageCartItem) =>
-        item.productVariantId === selectedVariant.id
+      (item: LocalStorageCartItem) => item.productVariantId == newItemId
     );
 
     if (existingItemIndex !== -1) {
       // Update quantity of existing item
-      cart[existingItemIndex].quantity += newItem.quantity;
+      cart[existingItemIndex].quantity += quantity;
+      setCartItems((currentItems) => {
+        return currentItems.map((item) => {
+          if (item.id === newItemId) {
+            return { ...item, quantity: item.quantity + quantity };
+          }
+          return item;
+        });
+      });
     } else {
       // Add new item to cart
-      cart.push(cartItem);
+      cart.push(newCartItem);
     }
 
     // Save updated cart back to localStorage
     localStorage.setItem("cart", JSON.stringify(cart));
-    console.log("Item added to local cart:", cartItem);
+
+    // Fetch details for the updated cart
+    await fetchItemDetails(cart);
   };
 
-  // Update an item's quantity in the cart
-  const updateCartItemQuantity = (itemId: number, quantity: number) => {
-    // Logic to update item quantity
-    // ???
-  };
+  const removeItemFromCart = (itemId: number) => {
+    // Retrieve the current cart from local storage
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-  useEffect(() => {
-    // Fetch cart items on mount
-    fetchCartItems();
-  }, []);
+    // Filter out the item to be removed
+    const updatedCart = cart.filter(
+      (item: LocalStorageCartItem) => item.productVariantId !== itemId
+    );
+
+    // Update local storage with the new cart
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Update the cartItems state to reflect the removal
+    const updatedCartItems = cartItems.filter((item) => item.id !== itemId);
+    setCartItems(updatedCartItems);
+  };
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addCartItem, updateCartItemQuantity, fetchCartItems }}
+      value={{
+        cartItems,
+        addItemToCart,
+        handleQuantityChange,
+        fetchItemDetails,
+        subTotal,
+        removeItemFromCart,
+      }}
     >
-      {" "}
-      {/*addCrtItem generates a type error*/}
       {children}
     </CartContext.Provider>
   );

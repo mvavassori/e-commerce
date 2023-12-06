@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type QuantityInputProps = {
   initialQuantity?: number;
@@ -15,6 +15,10 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
   onChange,
 }) => {
   const [quantity, setQuantity] = useState<number>(initialQuantity);
+
+  useEffect(() => {
+    setQuantity(initialQuantity);
+  }, [initialQuantity]);
 
   const handleDecrease = () => {
     if (quantity > minQuantity) {

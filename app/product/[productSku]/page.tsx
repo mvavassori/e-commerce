@@ -49,7 +49,7 @@ export default async function ProductPage({
 
   // console.log(productWithVariants.variants);
   // console.log(uniqueAttributes);
-  console.log(productWithVariants.images);
+  // console.log(productWithVariants.images);
 
   return (
     <div className="md:flex px-4 sm:px-6 lg:px-20 mt-10 mb-12">

@@ -1,17 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import CloseIcon from "../icons/CloseIcon";
 import CartIcon from "../icons/CartIcon";
 import QuantityInput from "../QuantityInput";
 import { ProductVariant, Product, ProductImage } from "@prisma/client";
-
-interface LocalStorageCartItem {
-  productVariantId: number;
-  quantity: number;
-}
+import { useCart } from "@/context/CartContext";
 
 interface FetchedItem extends ProductVariant {
   product: Product & {
@@ -23,103 +19,22 @@ interface ExtendedProductVariant extends FetchedItem {
   quantity: number;
 }
 
+interface ProductAttribute {
+  [key: string]: string;
+}
+
 export default function Cart() {
   const [isOpen, setIsOpen] = useState(false);
-  // Array state to store the combined product variant details and quantities
-  const [fetchedItems, setFecthedItems] = useState<ExtendedProductVariant[]>(
-    []
-  );
-  // Array state to store product variant details fetched from the backend
-  const [cartItems, setCartItems] = useState<ExtendedProductVariant[]>([]);
+
+  const { cartItems, handleQuantityChange, subTotal, removeItemFromCart } =
+    useCart();
 
   const toggleCartMenu = () => setIsOpen(!isOpen);
 
   // Close the cart when the overlay is clicked
   const closeCart = () => setIsOpen(false);
 
-  useEffect(() => {
-    // Fetch item details when the component mounts or when localStorage changes
-    const localCart: LocalStorageCartItem[] = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
-    if (localCart.length > 0) {
-      fetchItemDetails(localCart);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Combine fetched items with localStorage quantities
-    const localCart: LocalStorageCartItem[] = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
-    const combinedCartItems = fetchedItems.map((item) => {
-      const localItem = localCart.find(
-        (local) => local.productVariantId === item.id
-      );
-      return {
-        ...item,
-        quantity: localItem ? localItem.quantity : 0,
-      };
-    });
-
-    setCartItems(combinedCartItems);
-  }, [fetchedItems]);
-
-  const fetchItemDetails = async (localCart: LocalStorageCartItem[]) => {
-    const response = await fetch("/api/item-details", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productVariantIds: localCart?.map((item) => item.productVariantId),
-      }),
-    });
-
-    const data = await response.json();
-
-    console.log(data);
-
-    setFecthedItems(data);
-  };
-
-  const handleQuantityChange = (itemId: number, newQuantity: number) => {
-    // Update cartItems state
-    const updatedCartItems = cartItems.map((item) => {
-      if (item.id === itemId) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-
-    setCartItems(updatedCartItems);
-
-    // Update localStorage
-    updateLocalStorageCart(itemId, newQuantity);
-  };
-
-  const updateLocalStorageCart = (itemId: number, newQuantity: number) => {
-    const localCart: LocalStorageCartItem[] = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
-    const updatedLocalCart = localCart.map((cartItem) => {
-      if (cartItem.productVariantId === itemId) {
-        return { ...cartItem, quantity: newQuantity };
-      }
-      return cartItem;
-    });
-
-    localStorage.setItem("cart", JSON.stringify(updatedLocalCart));
-  };
-
-  const calculateSubtotal = () => {
-    let subTotal = cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-
-    return subTotal.toFixed(2);
-  };
+  // console.log(cartItems);
 
   return (
     <div className="">
@@ -164,6 +79,34 @@ export default function Cart() {
                     <div>
                       <p>{item.product.name}</p>
                       <p>$ {item.price.toFixed(2)}</p>
+                      {/* Displaying product attributes */}
+                      {item.attributes &&
+                        typeof item.attributes === "object" && (
+                          <ul>
+                            {Object.entries(item.attributes).map(
+                              ([attributeKey, attributeValue]) => {
+                                // Convert attributeValue to a displayable format
+                                let displayValue;
+                                if (
+                                  attributeValue === null ||
+                                  attributeValue === undefined
+                                ) {
+                                  displayValue = "N/A";
+                                } else if (typeof attributeValue === "object") {
+                                  displayValue = JSON.stringify(attributeValue);
+                                } else {
+                                  displayValue = attributeValue.toString();
+                                }
+
+                                return (
+                                  <li key={attributeKey}>
+                                    {attributeKey}: {displayValue}
+                                  </li>
+                                );
+                              }
+                            )}
+                          </ul>
+                        )}
                     </div>
                     <QuantityInput
                       initialQuantity={item.quantity}
@@ -172,7 +115,7 @@ export default function Cart() {
                       }
                     />
                     <p>$ {(item.price * item.quantity).toFixed(2)}</p>
-                    <button onClick={() => console.log("Remove item")}>
+                    <button onClick={() => removeItemFromCart(item.id)}>
                       Remove
                     </button>
                   </div>
@@ -180,7 +123,8 @@ export default function Cart() {
 
                 {/* Cart Summary */}
                 <div>
-                  <p>Subtotal: $ {calculateSubtotal()}</p>
+                  {/* <p>Subtotal: $ {calculateSubtotal()}</p> */}
+                  <p>Subtotal: $ {subTotal.toFixed(2)}</p>
                   <Link
                     href="/checkout"
                     className="bg-blue-500 text-white py-2 px-16 rounded-full font-semibold"
