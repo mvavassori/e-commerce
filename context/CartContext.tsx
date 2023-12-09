@@ -1,7 +1,14 @@
 "use client";
 
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { ProductVariant, Product, ProductImage } from "@prisma/client";
+import {
+  ProductVariant,
+  Product,
+  ProductImage,
+  Cart,
+  CartItem,
+} from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 interface LocalStorageCartItem {
   productVariantId: number;
@@ -18,6 +25,17 @@ interface ExtendedProductVariant extends FetchedItem {
   quantity: number;
 }
 
+interface ExtendedCartItem extends CartItem {
+  productVariant: FetchedItem;
+}
+
+interface FetchedCart {
+  cart: Cart & {
+    items: ExtendedCartItem[];
+  };
+  subTotal: number;
+}
+
 interface CartContextType {
   cartItems: ExtendedProductVariant[];
   addItemToCart: (newItemId: number, quantity: number) => void;
@@ -25,6 +43,7 @@ interface CartContextType {
   fetchItemDetails: (localCart: LocalStorageCartItem[]) => void;
   subTotal: number;
   removeItemFromCart: (itemId: number) => void;
+  serverCart: FetchedCart | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -40,39 +59,54 @@ export const CartContextProvider = ({
   const [cartItems, setCartItems] = useState<ExtendedProductVariant[]>([]);
   const [subTotal, setSubTotal] = useState<number>(0);
 
-  useEffect(() => {
-    // Fetch item details when the component mounts or when localStorage changes
-    const localCart: LocalStorageCartItem[] = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
-    if (localCart.length > 0) {
-      fetchItemDetails(localCart);
-    }
-  }, []);
+  const [serverCart, setServerCart] = useState<FetchedCart | null>(null);
+
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Combine fetched items with localStorage quantities
-    const localCart: LocalStorageCartItem[] = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
-    const combinedCartItems = fetchedItems.map((item) => {
-      const localItem = localCart.find(
-        (local) => local.productVariantId === item.id
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      // Fetch item details when the component mounts or when localStorage changes
+      const localCart: LocalStorageCartItem[] = JSON.parse(
+        localStorage.getItem("cart") || "[]"
       );
-      return {
-        ...item,
-        quantity: localItem ? localItem.quantity : 0,
-      };
-    });
-
-    setCartItems(combinedCartItems);
-  }, [fetchedItems]);
+      if (localCart.length > 0) {
+        fetchItemDetails(localCart);
+      }
+    }
+  }, [status]);
 
   useEffect(() => {
-    if (cartItems) {
-      calculateSubtotal();
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      // Combine fetched items with localStorage quantities
+      const localCart: LocalStorageCartItem[] = JSON.parse(
+        localStorage.getItem("cart") || "[]"
+      );
+      const combinedCartItems = fetchedItems.map((item) => {
+        const localItem = localCart.find(
+          (local) => local.productVariantId === item.id
+        );
+        return {
+          ...item,
+          quantity: localItem ? localItem.quantity : 0,
+        };
+      });
+
+      setCartItems(combinedCartItems);
+    } else if (status === "authenticated") {
+      fetchCart();
     }
-  }, [cartItems]);
+  }, [fetchedItems, status]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      if (cartItems) {
+        calculateSubtotal();
+      }
+    }
+  }, [cartItems, status]);
 
   const fetchItemDetails = async (localCart: LocalStorageCartItem[]) => {
     const response = await fetch("/api/item-details", {
@@ -90,6 +124,14 @@ export const CartContextProvider = ({
     // console.log(data);
 
     setFecthedItems(data);
+  };
+
+  const fetchCart = async () => {
+    const response = await fetch("/api/cart");
+    const data = await response.json();
+
+    console.log(data);
+    setServerCart(data);
   };
 
   const handleQuantityChange = (itemId: number, newQuantity: number) => {
@@ -129,7 +171,7 @@ export const CartContextProvider = ({
     setSubTotal(subTotalCalc);
   };
 
-  // Add a new item to the cart //todo in AddToCart
+  // Add a new item to the cart
   const addItemToCart = async (newItemId: number, quantity: number) => {
     // Add item to cart in localStorage
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -187,6 +229,7 @@ export const CartContextProvider = ({
   return (
     <CartContext.Provider
       value={{
+        serverCart,
         cartItems,
         addItemToCart,
         handleQuantityChange,

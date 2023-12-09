@@ -32,7 +32,7 @@ const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
 
     if (status === "authenticated") {
       // Make API call to add item to cart in database
-      const response = await fetch("/api/add-to-cart", {
+      const response = await fetch("/api/cart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

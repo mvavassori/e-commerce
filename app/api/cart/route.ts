@@ -119,3 +119,69 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || !session.user.id) {
+    return NextResponse.json(
+      { message: "You must be logged in to perform this action." },
+      { status: 401 }
+    );
+  }
+  try {
+    const userId = parseInt(session.user.id, 10);
+
+    let userCart = await db.cart.findUnique({
+      where: { userId: userId },
+      include: {
+        items: {
+          include: {
+            productVariant: {
+              include: {
+                product: {
+                  include: {
+                    images: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // If not, create a new cart for the user
+    if (!userCart) {
+      userCart = await db.cart.create({
+        data: {
+          userId: userId,
+        },
+        include: {
+          items: {
+            include: {
+              productVariant: {
+                include: {
+                  product: {
+                    include: {
+                      images: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+    // Calculate total price of all items in the cart
+    const subTotal = userCart.items.reduce((total, item) => {
+      return total + item.price * item.quantity;
+    }, 0);
+    return NextResponse.json({ cart: userCart, subTotal });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

@@ -139,7 +139,7 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
               // Conditional class
               const buttonClass = isSelected
                 ? "border-3 border-gray-400 ring-blue-400 ring-2 bg-blue-200 px-2 rounded-full mt-3"
-                : "border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3";
+                : "border border-gray-400 hover:ring-blue-400 hover:ring-2 active:bg-gray-300 px-2 rounded-full mt-3 hover:border-blue-400";
 
               return (
                 <button
