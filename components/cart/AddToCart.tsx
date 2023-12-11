@@ -9,45 +9,21 @@ interface AddToCartProps {
   quantity: number;
 }
 
-interface UnauthenticatedCartItem {
-  productVariantId: number;
-  quantity: number;
-}
-
 const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
-  const itemsToBuy = {
-    selectedVariant,
-    quantity,
-  };
-
   //todo
-  const { addItemToCart } = useCart();
+  const { addItemToCart, addServerItemToCart } = useCart();
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
 
-    // Check if user is authenticated (you'll need to implement this check)
+    if (status === "loading") return;
 
-    if (status === "authenticated") {
-      // Make API call to add item to cart in database
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productVariantId: selectedVariant.id,
-          quantity: quantity,
-        }),
-      });
-
-      const data = await response.json();
-      // console.log(data);
-    } else {
-      // Add item to cart in localStorage and update cart's state
+    if (status === "unauthenticated") {
       addItemToCart(selectedVariant.id, quantity);
+    } else if (status === "authenticated") {
+      addServerItemToCart(selectedVariant.id, quantity);
     }
   };
 

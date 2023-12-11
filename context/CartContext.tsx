@@ -46,6 +46,7 @@ interface CartContextType {
   serverCart: FetchedCart | null;
   handleServerQuantityChange: (itemId: number, quantity: number) => void;
   removeServerItemFromCart: (itemId: number) => void;
+  addServerItemToCart: (newItemId: number, quantity: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -237,6 +238,30 @@ export const CartContextProvider = ({
     await fetchItemDetails(cart);
   };
 
+  const addServerItemToCart = async (
+    productVariantId: number,
+    quantity: number
+  ) => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productVariantId: productVariantId,
+          quantity: quantity,
+        }),
+      });
+
+      const data = await response.json();
+
+      setServerCart(data);
+    } catch (error) {
+      console.error("Error adding cart item:", error);
+    }
+  };
+
   const removeItemFromCart = (itemId: number) => {
     // Retrieve the current cart from local storage
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -285,6 +310,7 @@ export const CartContextProvider = ({
         removeItemFromCart,
         handleServerQuantityChange,
         removeServerItemFromCart,
+        addServerItemToCart,
       }}
     >
       {children}
