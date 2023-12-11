@@ -7,9 +7,14 @@ import { useCart } from "@/context/CartContext";
 interface AddToCartProps {
   selectedVariant: ProductVariant | null;
   quantity: number;
+  onItemAdded: () => void;
 }
 
-const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
+const AddToCart: React.FC<AddToCartProps> = ({
+  selectedVariant,
+  quantity,
+  onItemAdded,
+}) => {
   //todo
   const { addItemToCart, addServerItemToCart } = useCart();
 
@@ -22,8 +27,10 @@ const AddToCart: React.FC<AddToCartProps> = ({ selectedVariant, quantity }) => {
 
     if (status === "unauthenticated") {
       addItemToCart(selectedVariant.id, quantity);
+      onItemAdded();
     } else if (status === "authenticated") {
       addServerItemToCart(selectedVariant.id, quantity);
+      onItemAdded();
     }
   };
 

@@ -28,7 +28,7 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number>(1);
 
   // In summary, this code collects all unique values for each attribute across all product variants. For example, if you have t-shirts in different sizes and colors, it will create a list of all available sizes and another list of all available colors, without any duplicates.
   const uniqueAttributes = useMemo(() => {
@@ -117,9 +117,12 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
     router.push(`${pathname}${query}`, { scroll: false });
   };
 
-  const handleQuantityChange = (quantity: number) => {
-    console.log("Selected Quantity:", quantity);
-    setQuantity(quantity);
+  const resetQuantity = () => {
+    setQuantity(1);
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    setQuantity(newQuantity);
   };
 
   return (
@@ -154,8 +157,15 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
           </div>
         </div>
       ))}
-      <QuantityInput onChange={handleQuantityChange} />
-      <AddToCart selectedVariant={selectedVariant} quantity={quantity} />
+      <QuantityInput
+        onChange={handleQuantityChange}
+        initialQuantity={quantity}
+      />
+      <AddToCart
+        selectedVariant={selectedVariant}
+        quantity={quantity}
+        onItemAdded={resetQuantity}
+      />
     </>
   );
 };

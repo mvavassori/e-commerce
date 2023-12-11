@@ -103,6 +103,13 @@ export const CartContextProvider = ({
   }, [fetchedItems, status]);
 
   useEffect(() => {
+    const calculateSubtotal = () => {
+      let subTotalCalc = cartItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+      setSubTotal(subTotalCalc);
+    };
     if (status === "loading") return;
     if (status === "unauthenticated") {
       if (cartItems) {
@@ -190,14 +197,6 @@ export const CartContextProvider = ({
     });
 
     localStorage.setItem("cart", JSON.stringify(updatedLocalCart));
-  };
-
-  const calculateSubtotal = () => {
-    let subTotalCalc = cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-    setSubTotal(subTotalCalc);
   };
 
   // Add a new item to the cart

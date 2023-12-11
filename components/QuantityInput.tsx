@@ -11,7 +11,7 @@ type QuantityInputProps = {
 const QuantityInput: React.FC<QuantityInputProps> = ({
   initialQuantity = 1,
   minQuantity = 1,
-  maxQuantity = 100,
+  maxQuantity = 50,
   onChange,
 }) => {
   const [quantity, setQuantity] = useState<number>(initialQuantity);
