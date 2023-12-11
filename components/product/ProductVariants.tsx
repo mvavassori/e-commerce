@@ -97,7 +97,7 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
       // Update state with the initial attributes from the URL
       setSelectedAttributes(initialAttributes);
     }
-  }, [searchParams]);
+  }, [searchParams, uniqueAttributes]);
 
   const handleButtonClick = (attributeName: string, value: string) => {
     setSelectedAttributes((prev) => ({
