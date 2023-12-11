@@ -44,6 +44,8 @@ interface CartContextType {
   subTotal: number;
   removeItemFromCart: (itemId: number) => void;
   serverCart: FetchedCart | null;
+  handleServerQuantityChange: (itemId: number, quantity: number) => void;
+  removeServerItemFromCart: (itemId: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -149,6 +151,32 @@ export const CartContextProvider = ({
     updateLocalStorageCart(itemId, newQuantity);
   };
 
+  const handleServerQuantityChange = async (
+    cartItemId: number,
+    newQuantity: number
+  ) => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cartItemId, newQuantity: newQuantity }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update cart item quantity");
+      }
+
+      const updatedCart = await response.json();
+
+      // Update the serverCart state with the new cart data
+      setServerCart(updatedCart);
+    } catch (error) {
+      console.error("Error updating cart item quantity:", error);
+    }
+  };
+
   const updateLocalStorageCart = (itemId: number, newQuantity: number) => {
     const localCart: LocalStorageCartItem[] = JSON.parse(
       localStorage.getItem("cart") || "[]"
@@ -226,6 +254,25 @@ export const CartContextProvider = ({
     setCartItems(updatedCartItems);
   };
 
+  const removeServerItemFromCart = async (cartItemId: number) => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cartItemId: cartItemId }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to remove cart item");
+      }
+      const updatedCart = await response.json();
+      setServerCart(updatedCart);
+    } catch (error) {
+      console.error("Error removing cart item:", error);
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -236,6 +283,8 @@ export const CartContextProvider = ({
         fetchItemDetails,
         subTotal,
         removeItemFromCart,
+        handleServerQuantityChange,
+        removeServerItemFromCart,
       }}
     >
       {children}

@@ -21,22 +21,44 @@ interface ExtendedCartItem extends CartItem {
   productVariant: FetchedItem;
 }
 
-interface FetchedCart extends Cart {
-  items: ExtendedCartItem[];
-  subTotal: number; // Calculated subtotal from the backend
+// interface FetchedCart extends Cart {
+//   items: ExtendedCartItem[];
+//   subTotal: number; // Calculated subtotal from the backend
+// }
+
+function debounce<F extends (...args: any[]) => void>(
+  func: F,
+  delay: number
+): (...args: Parameters<F>) => void {
+  let timerId: ReturnType<typeof setTimeout> | null = null;
+
+  return (...args: Parameters<F>) => {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+    }
+    timerId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
 }
 
 export default function AuthenticatedCart() {
   const {
-    cartItems,
-    handleQuantityChange,
     removeItemFromCart,
-    subTotal,
     serverCart,
+    handleServerQuantityChange,
+    removeServerItemFromCart,
   } = useCart();
   console.log(serverCart);
 
+  const debouncedQuantityChange = React.useMemo(
+    () => debounce(handleServerQuantityChange, 500),
+    [handleServerQuantityChange]
+  );
+
   const isCartEmpty = !serverCart || serverCart.cart.items.length === 0;
+
+  console.log(serverCart?.cart.items);
   return (
     <div className="p-5">
       <h2 className="text-lg font-semibold">Your Cart</h2>
@@ -89,11 +111,11 @@ export default function AuthenticatedCart() {
               <QuantityInput
                 initialQuantity={item.quantity}
                 onChange={(newQuantity) =>
-                  handleQuantityChange(item.id, newQuantity)
+                  debouncedQuantityChange(item.id, newQuantity)
                 }
               />
               <p>$ {(item.price * item.quantity).toFixed(2)}</p>
-              <button onClick={() => removeItemFromCart(item.id)}>
+              <button onClick={() => removeServerItemFromCart(item.id)}>
                 Remove
               </button>
             </div>
