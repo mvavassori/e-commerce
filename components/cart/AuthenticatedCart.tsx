@@ -49,7 +49,6 @@ export default function AuthenticatedCart() {
 
   const isCartEmpty = !serverCart || serverCart.cart.items.length === 0;
 
-  console.log(serverCart?.cart.items);
   return (
     <div className="flex flex-col h-full p-5">
       <h2 className="text-lg font-semibold mb-4">Your Cart</h2>

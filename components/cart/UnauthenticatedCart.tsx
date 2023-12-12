@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import QuantityInput from "../QuantityInput";
 import { ProductVariant, Product, ProductImage } from "@prisma/client";
+import RemoveIcon from "../icons/RemoveIcon";
 
 interface FetchedItem extends ProductVariant {
   product: Product & {
@@ -18,73 +19,82 @@ interface ExtendedProductVariant extends FetchedItem {
 export default function UnauthenticatedCart() {
   const { cartItems, handleQuantityChange, removeItemFromCart, subTotal } =
     useCart();
+
+  const isCartEmpty = !cartItems || cartItems.length === 0;
   return (
-    <div className="p-5">
-      <h2 className="text-lg font-semibold">Your Cart</h2>
-      {cartItems.length === 0 ? (
+    <div className="flex flex-col h-full p-5">
+      <h2 className="text-lg font-semibold mb-4">Your Cart</h2>
+
+      {isCartEmpty ? (
         <p>Your cart is empty.</p>
       ) : (
-        <div>
-          {/* Cart Items */}
-          {cartItems.map((item: ExtendedProductVariant) => (
-            <div key={item.id} className="flex items-center justify-between">
-              <Image
-                src={item.product.images[0].url}
-                alt={item.product.name}
-                height={50}
-                width={50}
-                className="w-20 h-20 object-cover"
-              />
-              <div>
-                <p>{item.product.name}</p>
-                <p>$ {item.price.toFixed(2)}</p>
-                {/* Displaying product attributes */}
-                {item.attributes && typeof item.attributes === "object" && (
-                  <ul>
-                    {Object.entries(item.attributes).map(
-                      ([attributeKey, attributeValue]) => {
-                        // Convert attributeValue to a displayable format
-                        let displayValue;
-                        if (
-                          attributeValue === null ||
-                          attributeValue === undefined
-                        ) {
-                          displayValue = "N/A";
-                        } else if (typeof attributeValue === "object") {
-                          displayValue = JSON.stringify(attributeValue);
-                        } else {
-                          displayValue = attributeValue.toString();
-                        }
+        <div className="flex flex-col h-[calc(100%-3rem)]">
+          {/* Scrollable Cart Items */}
+          <div className="flex-grow overflow-y-auto">
+            {/* Cart Items */}
+            {cartItems.map((item: ExtendedProductVariant) => (
+              <div
+                key={item.id}
+                className="flex items-start justify-between mb-4 p-2 border-b"
+              >
+                {/* Product Image */}
+                <div className="w-20 flex-shrink-0">
+                  <Image
+                    src={item.product.images[0].url}
+                    alt={item.product.name}
+                    height={50}
+                    width={50}
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
 
-                        return (
-                          <li key={attributeKey}>
-                            {attributeKey}: {displayValue}
-                          </li>
-                        );
-                      }
-                    )}
-                  </ul>
-                )}
+                {/* Product Details */}
+                <div className="flex-grow ml-4">
+                  {/* Product Name */}
+                  <p className="text-lg font-semibold">{item.product.name}</p>
+
+                  {/* Product Attributes */}
+                  <p className="text-sm text-gray-600">
+                    {item.attributes &&
+                      typeof item.attributes === "object" &&
+                      Object.entries(item.attributes)
+                        .map(([attributeKey, attributeValue]) =>
+                          attributeValue?.toString()
+                        )
+                        .join(" / ")}
+                  </p>
+                </div>
+
+                {/* Quantity, Price, and Remove Button */}
+                <div className="flex flex-col items-end">
+                  <p className="text-lg font-semibold">
+                    $ {item.price.toFixed(2)}
+                  </p>
+                  <button
+                    onClick={() => removeItemFromCart(item.id)}
+                    className="mt-1 mb-1 px-2 py-1 text-xs rounded hover:text-red-500"
+                  >
+                    <RemoveIcon />
+                  </button>
+                  <QuantityInput
+                    initialQuantity={item.quantity}
+                    onChange={(newQuantity) =>
+                      handleQuantityChange(item.id, newQuantity)
+                    }
+                  />
+                </div>
               </div>
-              <QuantityInput
-                initialQuantity={item.quantity}
-                onChange={(newQuantity) =>
-                  handleQuantityChange(item.id, newQuantity)
-                }
-              />
-              <p>$ {(item.price * item.quantity).toFixed(2)}</p>
-              <button onClick={() => removeItemFromCart(item.id)}>
-                Remove
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
 
           {/* Cart Summary */}
-          <div>
-            <p>Subtotal: $ {subTotal.toFixed(2)}</p>
+          <div className="mt-4">
+            <p className="text-lg font-semibold">
+              Subtotal: $ {subTotal.toFixed(2)}
+            </p>
             <Link
               href="/checkout"
-              className="bg-blue-500 text-white py-2 px-16 rounded-full font-semibold"
+              className="block w-full bg-blue-500 text-white text-center py-2 mt-4 rounded-full font-semibold"
             >
               Proceed to Checkout
             </Link>
