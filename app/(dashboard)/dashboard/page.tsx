@@ -3,11 +3,10 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
+// I'm redirecting through middleware.
+
 const UserDashboard = async () => {
   const session = await getServerSession(authOptions);
-  // if (!session) {
-  //   redirect("/signin");
-  // }
   console.log("adminsession", session);
   return (
     <>

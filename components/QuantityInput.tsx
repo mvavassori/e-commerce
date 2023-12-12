@@ -37,7 +37,7 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
   };
 
   return (
-    <div className="flex items-center mt-12">
+    <div className="flex items-center">
       <button
         className="px-3 bg-gray-200 text-black rounded-l-md border-t border-b active:bg-gray-300"
         onClick={handleDecrease}

@@ -15,7 +15,6 @@ const AddToCart: React.FC<AddToCartProps> = ({
   quantity,
   onItemAdded,
 }) => {
-  //todo
   const { addItemToCart, addServerItemToCart } = useCart();
 
   const { status } = useSession();

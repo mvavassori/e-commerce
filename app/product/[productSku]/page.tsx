@@ -24,8 +24,8 @@ export default async function ProductPage({
       sku: productSku,
     },
     include: {
-      variants: true, // Include all related variants
-      images: true, // Include all related images
+      variants: true,
+      images: true,
     },
   });
   if (!productWithVariants) {
@@ -47,45 +47,16 @@ export default async function ProductPage({
     }
   });
 
-  // console.log(productWithVariants.variants);
-  // console.log(uniqueAttributes);
-  // console.log(productWithVariants.images);
-
   return (
     <div className="md:flex px-4 sm:px-6 lg:px-20 mt-10 mb-12">
       <ProductImages
         images={productWithVariants?.images}
         productName={productWithVariants?.name}
       />
-      {/* <div className="w-full h-full">
-        <Image
-          src={productWithVariants.images[0].url}
-          alt="product"
-          width={500}
-          height={500}
-          className="object-contain mx-auto"
-        />
-        <div className="flex flex-wrap gap-6 mt-16 mb-12 justify-center">
-          {productWithVariants.images.length > 1 &&
-            productWithVariants.images.map((image: ProductImage) => (
-              <Image
-                key={image.id}
-                src={image.url}
-                alt={productWithVariants.name + "image"}
-                width={500}
-                height={500}
-                className="object-fit w-20 h-20 cursor-pointer rounded border-2 border-gray-300"
-              />
-            ))}
-        </div>
-      </div> */}
       <div className="md:w-2/5">
         <h1 className="text-3xl md:text-5xl font-bold">
           {productWithVariants?.name}
         </h1>
-        {/* <p className="font-semibold text-lg mt-4">
-          $ {productWithVariants?.price}
-        </p> */}
         <ProductVariants
           variants={productWithVariants?.variants}
           basePrice={productWithVariants?.price}

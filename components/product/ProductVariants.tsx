@@ -157,10 +157,13 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
           </div>
         </div>
       ))}
-      <QuantityInput
-        onChange={handleQuantityChange}
-        initialQuantity={quantity}
-      />
+      <div className="mt-12">
+        <QuantityInput
+          onChange={handleQuantityChange}
+          initialQuantity={quantity}
+        />
+      </div>
+
       <AddToCart
         selectedVariant={selectedVariant}
         quantity={quantity}

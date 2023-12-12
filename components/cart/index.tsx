@@ -4,19 +4,8 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import CloseIcon from "../icons/CloseIcon";
 import CartIcon from "../icons/CartIcon";
-import { ProductVariant, Product, ProductImage } from "@prisma/client";
 import UnauthenticatedCart from "./UnauthenticatedCart";
 import AuthenticatedCart from "./AuthenticatedCart";
-
-// interface FetchedItem extends ProductVariant {
-//   product: Product & {
-//     images: ProductImage[];
-//   };
-// }
-
-// interface ExtendedProductVariant extends FetchedItem {
-//   quantity: number;
-// }
 
 export default function Cart() {
   const [isOpen, setIsOpen] = useState(false);
