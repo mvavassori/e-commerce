@@ -40,7 +40,6 @@ function debounce<F extends (...args: any[]) => void>(
 export default function AuthenticatedCart() {
   const { serverCart, handleServerQuantityChange, removeServerItemFromCart } =
     useCart();
-  console.log(serverCart);
 
   const debouncedQuantityChange = React.useMemo(
     () => debounce(handleServerQuantityChange, 500),

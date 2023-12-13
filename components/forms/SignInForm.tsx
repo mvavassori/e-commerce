@@ -58,6 +58,7 @@ export default function SignInForm() {
           setServerErrorMessage(errorMessage);
         } else {
           // Successfully signed in
+          sessionStorage.setItem("isLoggingIn", "true");
           window.location.href = "/dashboard";
         }
       } catch (error) {

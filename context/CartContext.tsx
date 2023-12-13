@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import {
   ProductVariant,
   Product,
@@ -61,10 +68,14 @@ export const CartContextProvider = ({
   // Array state to store product variant details fetched from the backend
   const [cartItems, setCartItems] = useState<ExtendedProductVariant[]>([]);
   const [subTotal, setSubTotal] = useState<number>(0);
-
   const [serverCart, setServerCart] = useState<FetchedCart | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const { data: session, status } = useSession();
+  const prevStatusRef = useRef<
+    "authenticated" | "loading" | "unauthenticated" | null
+  >(null);
+
+  const { status } = useSession();
 
   useEffect(() => {
     if (status === "loading") return;
@@ -118,6 +129,50 @@ export const CartContextProvider = ({
     }
   }, [cartItems, status]);
 
+  useEffect(() => {
+    prevStatusRef.current = status;
+    console.log("prevStatusRef.current", prevStatusRef.current);
+  }, [status]);
+
+  useEffect(() => {
+    const mergeCarts = async () => {
+      try {
+        const localCart: LocalStorageCartItem[] = JSON.parse(
+          localStorage.getItem("cart") || "[]"
+        );
+
+        if (localCart.length > 0) {
+          const operations = localCart.map(async (item) => {
+            const existingItem = serverCart?.cart.items.find(
+              (ci) => ci.productVariant.id === item.productVariantId
+            );
+
+            if (existingItem) {
+              return handleServerQuantityChange(
+                existingItem.id,
+                existingItem.quantity + item.quantity
+              );
+            } else {
+              return addServerItemToCart(item.productVariantId, item.quantity);
+            }
+          });
+          // Wait for all operations to complete
+          await Promise.all(operations);
+        }
+        localStorage.setItem("cart", JSON.stringify([]));
+      } catch (error) {
+        console.error("Error merging carts: ", error);
+      }
+    };
+    // isLoggingIn i setted to true on signIn inside the signInForm.tsx component
+    const isLoggingIn = sessionStorage.getItem("isLoggingIn");
+    if (isLoggingIn === "true" && status === "authenticated") {
+      mergeCarts();
+    }
+    // Clear the flag after checking
+    sessionStorage.removeItem("isLoggingIn");
+  }, [status, serverCart]);
+
   const fetchItemDetails = async (localCart: LocalStorageCartItem[]) => {
     const response = await fetch("/api/item-details", {
       method: "POST",
@@ -131,8 +186,6 @@ export const CartContextProvider = ({
 
     const data = await response.json();
 
-    // console.log(data);
-
     setFecthedItems(data);
   };
 
@@ -140,7 +193,6 @@ export const CartContextProvider = ({
     const response = await fetch("/api/cart");
     const data = await response.json();
 
-    console.log(data);
     setServerCart(data);
   };
 

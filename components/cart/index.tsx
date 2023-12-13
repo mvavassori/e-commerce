@@ -14,7 +14,6 @@ export default function Cart() {
   const { status } = useSession();
 
   const { cartItems, serverCart } = useCart();
-  console.log(cartItems);
 
   const toggleCartMenu = () => setIsOpen(!isOpen);
 
