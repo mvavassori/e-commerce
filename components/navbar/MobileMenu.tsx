@@ -57,6 +57,20 @@ export default function MobileMenu() {
               Home
             </Link>
             <Link
+              href="/all-products"
+              className="text-lg block p-2 w-full"
+              onClick={toggleMobileMenu}
+            >
+              Products
+            </Link>
+            <Link
+              href="/products/TS-001"
+              className="text-lg block p-2 w-full"
+              onClick={toggleMobileMenu}
+            >
+              T-shirt
+            </Link>
+            <Link
               href="/about"
               className="text-lg block p-2 w-full"
               onClick={toggleMobileMenu}

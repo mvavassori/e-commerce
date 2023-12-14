@@ -1,28 +1,47 @@
-// import React from "react";
 import { db } from "@/lib/db";
-import Image from "next/image";
+import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import AllProductsSidebar from "@/components/AllProductsSidebar";
 
-async function getProducts() {
+export async function generateStaticParams() {
   const products = await db.product.findMany({
     include: {
-      images: true,
       category: true,
     },
   });
-  return products;
+  return products.map((product) => ({
+    categoryName: product.category.name,
+  }));
 }
 
-const AllProducts = async () => {
-  const products = await getProducts();
+export default async function AllCategoryProducts({
+  params: { categoryName },
+}: {
+  params: { categoryName: string };
+}) {
+  const productCategory = await db.product.findMany({
+    where: {
+      category: {
+        name: categoryName,
+      },
+    },
+    include: {
+      category: true,
+      images: true,
+    },
+  });
+  if (!productCategory) {
+    return notFound();
+  }
+  console.log(productCategory);
   return (
     <div className="md:flex px-6">
-      <div className="md:w-1/5 mt-6">
+      <div className="md:w-1/4 mt-6">
         <AllProductsSidebar />
       </div>
-      <div className="md:grid sm:grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12 mt-6">
-        {products.map((product) => (
+      <div className="md:grid sm:grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12 mt-6 ml-6">
+        {productCategory.map((product) => (
           <div key={product.id} className="border rounded-md py-2 px-4">
             <Link href={`/product/${product.sku}`}>
               <Image
@@ -45,6 +64,4 @@ const AllProducts = async () => {
       </div>
     </div>
   );
-};
-
-export default AllProducts;
+}

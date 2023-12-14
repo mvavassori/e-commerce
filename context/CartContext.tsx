@@ -5,7 +5,6 @@ import React, {
   useState,
   useContext,
   useEffect,
-  useCallback,
   useRef,
 } from "react";
 import {
@@ -63,13 +62,10 @@ export const CartContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  // Array state to store the combined product variant details and quantities
   const [fetchedItems, setFecthedItems] = useState<FetchedItem[]>([]);
-  // Array state to store product variant details fetched from the backend
   const [cartItems, setCartItems] = useState<ExtendedProductVariant[]>([]);
   const [subTotal, setSubTotal] = useState<number>(0);
   const [serverCart, setServerCart] = useState<FetchedCart | null>(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const prevStatusRef = useRef<
     "authenticated" | "loading" | "unauthenticated" | null
@@ -131,7 +127,6 @@ export const CartContextProvider = ({
 
   useEffect(() => {
     prevStatusRef.current = status;
-    console.log("prevStatusRef.current", prevStatusRef.current);
   }, [status]);
 
   useEffect(() => {
@@ -251,7 +246,6 @@ export const CartContextProvider = ({
     localStorage.setItem("cart", JSON.stringify(updatedLocalCart));
   };
 
-  // Add a new item to the cart
   const addItemToCart = async (newItemId: number, quantity: number) => {
     // Add item to cart in localStorage
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");

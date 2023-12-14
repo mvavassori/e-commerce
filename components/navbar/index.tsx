@@ -28,10 +28,18 @@ const Navbar = async () => {
           </li>
           <li>
             <Link
+              href="/all-products"
+              className="underline-offset-4 hover:underline"
+            >
+              Products
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/product/TS-001"
               className="underline-offset-4 hover:underline"
             >
-              Product
+              T-shirt
             </Link>
           </li>
           <li>
