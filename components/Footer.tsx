@@ -33,7 +33,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              support@e-commerce.com
+              support@example.com
             </a>
           </div>
         </div>

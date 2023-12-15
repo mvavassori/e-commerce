@@ -18,7 +18,8 @@
     "next-auth": "^4.24.5",
     "react": "^18",
     "react-dom": "^18",
-    "save-dev": "^0.0.1-security"
+    "save-dev": "^0.0.1-security",
+    "stripe": "^14.9.0"
   },
   "devDependencies": {
     "@types/node": "^20",

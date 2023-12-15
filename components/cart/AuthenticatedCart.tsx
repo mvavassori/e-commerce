@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import QuantityInput from "../QuantityInput";
 import {
@@ -47,6 +46,27 @@ export default function AuthenticatedCart() {
   );
 
   const isCartEmpty = !serverCart || serverCart.cart.items.length === 0;
+
+  console.log(serverCart?.cart.items);
+
+  const checkout = async () => {
+    await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ items: serverCart?.cart.items }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        // console.log(res);
+        if (res.url) {
+          console.log(res.url);
+        }
+      });
+  };
 
   return (
     <div className="flex flex-col h-full p-5">
@@ -121,12 +141,12 @@ export default function AuthenticatedCart() {
             <p className="text-lg font-semibold">
               Subtotal: $ {serverCart?.subTotal.toFixed(2)}
             </p>
-            <Link
-              href="/checkout"
+            <button
+              onClick={checkout}
               className="block w-full bg-blue-500 text-white text-center py-2 mt-4 rounded-full font-semibold"
             >
               Proceed to Checkout
-            </Link>
+            </button>
           </div>
         </div>
       )}
