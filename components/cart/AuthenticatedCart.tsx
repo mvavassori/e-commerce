@@ -1,4 +1,4 @@
-import React from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import QuantityInput from "../QuantityInput";
@@ -40,7 +40,7 @@ export default function AuthenticatedCart() {
   const { serverCart, handleServerQuantityChange, removeServerItemFromCart } =
     useCart();
 
-  const debouncedQuantityChange = React.useMemo(
+  const debouncedQuantityChange = useMemo(
     () => debounce(handleServerQuantityChange, 500),
     [handleServerQuantityChange]
   );
@@ -61,9 +61,9 @@ export default function AuthenticatedCart() {
         return res.json();
       })
       .then((res) => {
-        // console.log(res);
+        console.log(res);
         if (res.url) {
-          console.log(res.url);
+          window.location.href = res.url;
         }
       });
   };
