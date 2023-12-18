@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-const stripe = require("stripe")(process.env.STRIPE_SECRET);
+const stripe = require("stripe")(process.env.STRIPE_TEST_SECRET);
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 const getActiveProducts = async () => {
   const checkProducts = await stripe.products.list();
@@ -10,6 +12,13 @@ const getActiveProducts = async () => {
 };
 
 export async function POST(req: Request) {
+  const authSession = await getServerSession(authOptions);
+  if (!authSession || !authSession.user || !authSession.user.id) {
+    return NextResponse.json(
+      { message: "You must be logged in to perform this action." },
+      { status: 401 }
+    );
+  }
   const body = await req.json();
   const { items } = body;
 
@@ -55,16 +64,17 @@ export async function POST(req: Request) {
     }
   }
 
+  console.log(authSession.user.id);
+
   const session = await stripe.checkout.sessions.create({
     line_items: stripeItems,
     mode: "payment",
     success_url: "http://localhost:3000/success",
     cancel_url: "http://localhost:3000/cancel",
+    metadata: {
+      userId: authSession.user.id,
+    },
   });
-
-  // const prods = await stripe.products.list();
-
-  // console.log(prods);
 
   return NextResponse.json({ url: session.url });
 }

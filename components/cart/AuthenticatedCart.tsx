@@ -56,6 +56,7 @@ export default function AuthenticatedCart() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ items: serverCart?.cart.items }),
+      // body: JSON.stringify({ cart: serverCart }),
     })
       .then((res) => {
         return res.json();
