@@ -64,15 +64,16 @@ export async function POST(req: Request) {
     }
   }
 
-  console.log(authSession.user.id);
+  console.log("authSession.user.id", authSession.user.id);
 
   const session = await stripe.checkout.sessions.create({
     line_items: stripeItems,
     mode: "payment",
     success_url: "http://localhost:3000/success",
     cancel_url: "http://localhost:3000/cancel",
+    customer_creation: "always",
     metadata: {
-      userId: authSession.user.id,
+      userId: authSession.user.id.toString(),
     },
   });
 

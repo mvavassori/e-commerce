@@ -21,17 +21,17 @@ export async function POST(req: Request) {
     );
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
 
-  if (event.type === "payment_intent.succeeded") {
-    const userId = session?.metadata?.userId;
+    const userId = session.metadata?.userId;
     const stripeCustomerId = session.customer;
 
     console.log("userId", userId);
     console.log("stripeCustomerId", stripeCustomerId);
 
     // Check if userId is defined
-    if (userId) {
+    if (userId && stripeCustomerId) {
       const user = await db.user.findUnique({
         where: {
           id: parseInt(userId),
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     } else {
       // Handle the case where userId is undefined
       return NextResponse.json(
-        { message: "UserId is undefined" },
+        { message: "userId or stripeCustomerId are undefined or null" },
         { status: 400 }
       );
     }

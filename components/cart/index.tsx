@@ -39,7 +39,7 @@ export default function Cart() {
     if (status === "loading") {
       return <p>Loading...</p>;
     } else if (status === "unauthenticated") {
-      return <UnauthenticatedCart />;
+      return <UnauthenticatedCart closeCart={closeCart} />;
     } else if (status === "authenticated") {
       return <AuthenticatedCart />;
     }

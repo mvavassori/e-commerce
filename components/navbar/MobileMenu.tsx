@@ -12,7 +12,7 @@ export default function MobileMenu() {
   // Close the mobile menu when the overlay is clicked
   const closeMobileMenu = () => setIsOpen(false);
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   return (
     <div>

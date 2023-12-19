@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import QuantityInput from "../QuantityInput";
 import { ProductVariant, Product, ProductImage } from "@prisma/client";
 import RemoveIcon from "../icons/RemoveIcon";
+import exp from "constants";
 
 interface FetchedItem extends ProductVariant {
   product: Product & {
@@ -16,7 +17,11 @@ interface ExtendedProductVariant extends FetchedItem {
   quantity: number;
 }
 
-export default function UnauthenticatedCart() {
+interface ChildComponentProps {
+  closeCart: () => void;
+}
+
+const UnauthenticatedCart: React.FC<ChildComponentProps> = ({ closeCart }) => {
   const { cartItems, handleQuantityChange, removeItemFromCart, subTotal } =
     useCart();
 
@@ -93,7 +98,8 @@ export default function UnauthenticatedCart() {
               Subtotal: $ {subTotal.toFixed(2)}
             </p>
             <Link
-              href="/checkout"
+              href="/signup"
+              onClick={closeCart}
               className="block w-full bg-blue-500 text-white text-center py-2 mt-4 rounded-full font-semibold"
             >
               Proceed to Checkout
@@ -103,4 +109,6 @@ export default function UnauthenticatedCart() {
       )}
     </div>
   );
-}
+};
+
+export default UnauthenticatedCart;
