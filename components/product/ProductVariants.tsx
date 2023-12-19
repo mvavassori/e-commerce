@@ -114,7 +114,7 @@ const ProductVariants: React.FC<ProductVariantProps> = ({
     // or const query = `${"?".repeat(search.length && 1)}${search}`;
     const query = attributes ? `?${attributes}` : "";
 
-    router.push(`${pathname}${query}`, { scroll: false });
+    router.replace(`${pathname}${query}`, { scroll: false });
   };
 
   const resetQuantity = () => {

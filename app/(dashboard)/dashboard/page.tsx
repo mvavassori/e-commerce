@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
+import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardOrders from "@/components/DashboardOrders";
 
@@ -10,8 +11,8 @@ const UserDashboard = async () => {
   console.log("adminsession", session);
   return (
     <div className="px-4 sm:px-6 lg:px-20 mt-10 mb-12">
-      <div className="flex justify-between">
-        <div className="bg-gray-100 rounded-lg p-4">
+      <div className="md:flex">
+        <div className="bg-gray-100 rounded-lg p-4 md:mr-4">
           <h2 className="font-bold text-3xl mb-4">Profile Info</h2>
           <p className=" text-gray-700">Hi there,</p>
           <p className="font-bold">
@@ -20,7 +21,18 @@ const UserDashboard = async () => {
           <p className="text-gray-700">Customer id: {session?.user.id}</p>
           <p className="text-gray-700">Email: {session?.user.email}</p>
         </div>
-        <div>
+        <div className="bg-gray-100 rounded-lg p-4">
+          <h2 className="font-bold text-3xl mb-4">Profile Actions</h2>
+          {/* <div>
+            <Link href="/change-password" className="hover:underline">
+              Change password
+            </Link>
+          </div>
+          <div>
+            <Link href="/change-email" className="hover:underline">
+              Change email
+            </Link>
+          </div> */}
           <SignOutButton />
         </div>
       </div>

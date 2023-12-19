@@ -11,7 +11,7 @@ export default function SignOutButton() {
           callbackUrl: `${window.location.origin}/signin`,
         })
       }
-      className="bg-red-600 text-white rounded-full px-2"
+      className=" text-red-500 rounded-md font-bold hover:text-red-600 hover:underline"
     >
       Sign Out
     </button>
