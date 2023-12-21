@@ -50,23 +50,27 @@ export default function AuthenticatedCart() {
   console.log(serverCart?.cart.items);
 
   const checkout = async () => {
-    await fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ items: serverCart?.cart.items }),
-      // body: JSON.stringify({ cart: serverCart }),
-    })
-      .then((res) => {
-        return res.json();
+    try {
+      await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: serverCart?.cart.items }),
+        // body: JSON.stringify({ cart: serverCart }),
       })
-      .then((res) => {
-        console.log(res);
-        if (res.url) {
-          window.location.href = res.url;
-        }
-      });
+        .then((res) => {
+          return res.json();
+        })
+        .then((res) => {
+          console.log(res);
+          if (res.url) {
+            window.location.href = res.url;
+          }
+        });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Sucess() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -5,13 +7,16 @@ export default function Sucess() {
         <h1 className="text-2xl font-bold text-green-600 mb-4">
           Payment Successful!
         </h1>
-        <p className="text-gray-700 mb-6">
+        <p className="mb-6 text-lg">
           Thank you for your purchase. Your order is being processed and you
           will receive a confirmation email shortly.
         </p>
-        <a href="/" className="text-blue-600 hover:underline">
-          Go back to the homepage
-        </a>
+        <Link
+          href="/"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Go back to the home page
+        </Link>
       </div>
     </div>
   );

@@ -121,12 +121,12 @@ export default function SignInForm() {
               <p className="text-red-500 text-sm mb-2">{errors.password}</p>
             )}
           </div>
-          <Link
+          {/* <Link
             href="/passwordreset"
             className="text-xs text-blue-600 hover:underline"
           >
             Forget Password?
-          </Link>
+          </Link> */}
           <div className="mt-6">
             {serverErrorMessage && (
               <div className="text-red-500 text-sm mb-2">

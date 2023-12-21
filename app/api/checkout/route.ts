@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 const stripe = require("stripe")(process.env.STRIPE_TEST_SECRET);
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { db } from "@/lib/db";
+
+// TODO Add types
 
 const getActiveProducts = async () => {
   const checkProducts = await stripe.products.list();
@@ -64,14 +67,41 @@ export async function POST(req: Request) {
     }
   }
 
-  console.log("authSession.user.id", authSession.user.id);
+  if (!authSession.user.email) {
+    return NextResponse.json(
+      { message: "User email is required for this operation." },
+      { status: 400 }
+    );
+  }
+
+  const user = await db.user.findUnique({
+    where: { email: authSession.user.email },
+  });
+
+  let stripeCustomerId = user?.stripeCustomerId;
+
+  if (!stripeCustomerId) {
+    const stripeCustomer = await stripe.customers.create({
+      email: authSession.user.email,
+    });
+    stripeCustomerId = stripeCustomer.id;
+
+    // Update your user record with the new Stripe customer ID
+    await db.user.update({
+      where: { email: authSession.user.email },
+      data: { stripeCustomerId: stripeCustomerId },
+    });
+  }
 
   const session = await stripe.checkout.sessions.create({
+    customer: stripeCustomerId,
     line_items: stripeItems,
     mode: "payment",
     success_url: "http://localhost:3000/success",
     cancel_url: "http://localhost:3000/cancel",
-    customer_creation: "always",
+    shipping_address_collection: {
+      allowed_countries: ["US", "IT"],
+    },
     metadata: {
       userId: authSession.user.id.toString(),
     },

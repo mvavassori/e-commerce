@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
+import Link from "next/link";
 
 const getOrders = async () => {
   const session = await getServerSession(authOptions);
@@ -23,6 +24,10 @@ const getOrders = async () => {
           },
         },
       },
+      shippingInfo: true,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
   return orders;
@@ -43,42 +48,65 @@ const DashboardOrders = async () => {
               <h3 className="font-bold">
                 Order #{order.id} - Status: {order.status}
               </h3>
-              <p className="text-xs text-gray-700">
-                Date: {order.createdAt.toLocaleDateString()}
-              </p>
+              <div className="md:flex gap-x-2 text-xs">
+                <div className="flex gap-x-1">
+                  <p className="font-semibold">Date: </p>
+                  <p className=" text-gray-700">
+                    {order.createdAt.toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div className="sm:flex gap-x-1">
+                  <p className="font-semibold">Shipping to:</p>
+                  <p>{order.shippingInfo?.name}</p>
+                  <p>{order.shippingInfo?.addressLine1}</p>
+                  {order.shippingInfo?.addressLine2 && (
+                    <p>{order.shippingInfo?.addressLine2}</p>
+                  )}
+                  <p>
+                    {order.shippingInfo?.city},{" "}
+                    {order.shippingInfo?.stateOrProvince}
+                  </p>
+                  <p>{order.shippingInfo?.country}</p>
+                  <p>{order.shippingInfo?.postalCode}</p>
+                </div>
+              </div>
+
               {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center border rounded-md p-2"
-                >
-                  <Image
-                    src={
-                      item.productVariant?.product.images[0].url ||
-                      "https://iskaknozihhuhqaiqtlj.supabase.co/storage/v1/object/public/e-commerce%20images/no-image.png?t=2023-12-19T13%3A41%3A15.217Z"
-                    }
-                    alt={
-                      item.productVariant?.product.name ||
-                      "Default Product Name"
-                    }
-                    width={100}
-                    height={100}
-                    className="w-20 h-20 object-cover mr-4 rounded-md"
-                  />
-                  <div>
-                    <p>Product: {item.productVariant?.product.name}</p>
-                    <p>Quantity: {item.quantity}</p>
-                    <p>Price: ${item.price}</p>
-                    <p className="">
-                      Attributes:{" "}
-                      {item.productVariant?.attributes &&
-                        typeof item.productVariant.attributes === "object" &&
-                        Object.entries(item.productVariant.attributes)
-                          .map(([attributeKey, attributeValue]) =>
-                            attributeValue?.toString()
-                          )
-                          .join(" / ")}
-                    </p>
-                  </div>
+                <div key={item.id} className="">
+                  <Link href={`/product/${item.productVariant?.product.sku}`}>
+                    <div className="flex items-center border rounded-md p-2">
+                      <Image
+                        src={
+                          item.productVariant?.product.images[0].url ||
+                          "https://iskaknozihhuhqaiqtlj.supabase.co/storage/v1/object/public/e-commerce%20images/no-image.png?t=2023-12-19T13%3A41%3A15.217Z"
+                        }
+                        alt={
+                          item.productVariant?.product.name ||
+                          "Default Product Name"
+                        }
+                        width={100}
+                        height={100}
+                        className="w-20 h-20 object-cover mr-4 rounded-md"
+                      />
+                      <div className="text-sm">
+                        <p>Product: {item.productVariant?.product.name}</p>
+                        <p>Quantity: {item.quantity}</p>
+                        <p>Price: ${item.price}</p>
+                        <p className="">
+                          Attributes:{" "}
+                          {item.productVariant?.attributes &&
+                            typeof item.productVariant.attributes ===
+                              "object" &&
+                            Object.entries(item.productVariant.attributes)
+                              .map(([attributeKey, attributeValue]) =>
+                                attributeValue?.toString()
+                              )
+                              .join(" / ")}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
               ))}
             </div>
