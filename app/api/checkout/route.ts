@@ -81,8 +81,10 @@ export async function POST(req: Request) {
   let stripeCustomerId = user?.stripeCustomerId;
 
   if (!stripeCustomerId) {
+    const fullName = `${authSession.user.name} ${authSession.user.surname}`;
     const stripeCustomer = await stripe.customers.create({
       email: authSession.user.email,
+      name: fullName,
     });
     stripeCustomerId = stripeCustomer.id;
 
