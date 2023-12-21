@@ -35,21 +35,40 @@ export async function POST(req: Request) {
 
       // Check if all required fields are present
       if (name && city && country && line1 && postal_code && state) {
-        const createdShippingInfo = await db.shippingInformation.create({
-          data: {
+        // Check for existing shipping information
+        const existingShippingInfo = await db.shippingInformation.findFirst({
+          where: {
             userId: parseInt(userId),
             name: name,
             city: city,
             country: country,
             addressLine1: line1,
-            addressLine2: line2 || null, // Handle potentially undefined fields
+            addressLine2: line2 || null,
             postalCode: postal_code,
             stateOrProvince: state,
           },
         });
 
-        const shippingInfoId = createdShippingInfo.id; // Capture the ID
-
+        let shippingInfoId;
+        if (existingShippingInfo) {
+          // Use existing shipping information
+          shippingInfoId = existingShippingInfo.id;
+        } else {
+          // Create new shipping information
+          const createdShippingInfo = await db.shippingInformation.create({
+            data: {
+              userId: parseInt(userId),
+              name: name,
+              city: city,
+              country: country,
+              addressLine1: line1,
+              addressLine2: line2 || null, // Handle potentially undefined fields
+              postalCode: postal_code,
+              stateOrProvince: state,
+            },
+          });
+          shippingInfoId = createdShippingInfo.id;
+        }
         // Check if userId is defined
         if (userId && stripeCustomerId) {
           const user = await db.user.findUnique({
