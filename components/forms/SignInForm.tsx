@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Errors {
   email?: string;
@@ -16,6 +18,12 @@ export default function SignInForm() {
   const [serverErrorMessage, setServerErrorMessage] = useState<string | null>(
     null
   );
+
+  const { status } = useSession();
+
+  if (status === "authenticated") {
+    redirect("/dashboard");
+  }
 
   const validateForm = () => {
     let errors: Errors = {};

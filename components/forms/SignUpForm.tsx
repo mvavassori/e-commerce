@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Errors {
   name?: string;
@@ -30,6 +31,12 @@ interface NewUser {
 
 export default function SignUpForm() {
   const router = useRouter();
+
+  const { status } = useSession();
+
+  if (status === "authenticated") {
+    redirect("/dashboard");
+  }
 
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
