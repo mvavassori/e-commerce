@@ -54,6 +54,7 @@ export const authOptions: NextAuthOptions = {
           surname: existingUser.surname,
           gender: existingUser.gender,
           birthDate: existingUser.birthDate.toISOString(),
+          stripeCustomerId: existingUser.stripeCustomerId || null,
         };
       },
     }),
