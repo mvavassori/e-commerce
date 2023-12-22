@@ -7,6 +7,8 @@ interface ProductAttribute {
   [key: string]: string;
 }
 
+export const dynamic = "force-static";
+
 // SEO Optimization
 export async function generateMetadata({
   params,
