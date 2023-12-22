@@ -2,7 +2,7 @@
 
 ## Overview
 
-This e-commerce platform is a modern, full-stack web application designed for online shopping experiences. It features a robust set of functionalities tailored for both customers and administrators, providing a seamless and intuitive shopping interface.
+This e-commerce platform is a modern, full-stack web application designed for modern online shopping experiences.
 
 ## Key Features
 
@@ -38,3 +38,17 @@ This e-commerce platform is a modern, full-stack web application designed for on
    git clone https://github.com/mvavassori/e-commerce
    cd your-repository-name
    ```
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+3. Set up your environment variables in a .env file based on the .env.example provided.
+4. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+5. Open http://localhost:3000 with your browser to see the result.
