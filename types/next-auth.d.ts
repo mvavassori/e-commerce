@@ -9,13 +9,7 @@ declare module "next-auth" {
   interface User
     extends Omit<
       PrismaUser,
-      | "id"
-      | "createdAt"
-      | "updatedAt"
-      | "cart"
-      | "orders"
-      | "password"
-      | "stripeCustomerId"
+      "id" | "createdAt" | "updatedAt" | "cart" | "orders" | "password"
     > {
     // Here you can specify the types of the extra fields if they differ from what Prisma expects
     birthDate: string; // Assuming you want to handle birthDate as string in NextAuth
