@@ -29,5 +29,6 @@ declare module "next-auth" {
     email?: string;
     gender?: Gender;
     birthDate?: string;
+    stripeCustomerId?: string | null;
   }
 }
