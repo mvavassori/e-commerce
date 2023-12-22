@@ -4,8 +4,7 @@ import Cart from "../cart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import UserIcon from "../icons/UserIcon";
-import CartIcon from "../icons/CartIcon";
-import { Suspense } from "react";
+import ButtonHandler from "./ButtonHandler";
 
 const Navbar = async () => {
   const session = await getServerSession(authOptions);
@@ -48,27 +47,10 @@ const Navbar = async () => {
             </Link>
           </li>
         </ul>
-
-        {/* {menu.length ? (
-                <ul className="hidden gap-6 text-sm md:flex md:items-center">
-                  {menu.map((item: Menu) => (
-                    <li key={item.title}>
-                      <Link
-                        href={item.path}
-                        className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
-                      >
-                        {item.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null} */}
       </div>
-      {/* <div className="hidden justify-center md:flex md:w-1/3">
-        <Search />
-      </div> */}
       <div className="flex justify-end md:w-1/3">
-        {session ? (
+        <ButtonHandler />
+        {/* {session ? (
           <Link href="/dashboard" className="mr-6 hidden md:block">
             <UserIcon />
           </Link>
@@ -79,11 +61,8 @@ const Navbar = async () => {
           >
             Sign In
           </Link>
-        )}
-
-        {/* <Suspense fallback={<CartIcon />}> */}
+        )} */}
         <Cart />
-        {/* </Suspense> */}
       </div>
     </nav>
   );
