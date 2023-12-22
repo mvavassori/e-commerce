@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postbuild": "next-sitemap",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "bcrypt": "^5.1.1",
     "next": "14.0.3",
     "next-auth": "^4.24.5",
+    "next-sitemap": "^4.2.3",
     "react": "^18",
     "react-dom": "^18",
     "save-dev": "^0.0.1-security",

@@ -2,6 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 
+export const metadata = {
+  title: "E-commerce",
+  description:
+    "A modern e-commerce website built with Next.js, TypeScript and PostreSQL with Prisma.",
+};
+
 async function getProducts() {
   const products = await db.product.findMany({
     include: {

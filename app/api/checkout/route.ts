@@ -99,8 +99,8 @@ export async function POST(req: Request) {
     customer: stripeCustomerId,
     line_items: stripeItems,
     mode: "payment",
-    success_url: "http://localhost:3000/success",
-    cancel_url: "http://localhost:3000/cancel",
+    success_url: "http://localhost:3000/success", // `${process.env.SITE_URL}/success`
+    cancel_url: "http://localhost:3000/cancel", // `${process.env.SITE_URL}/cancel`
     shipping_address_collection: {
       allowed_countries: ["US", "IT"],
     },

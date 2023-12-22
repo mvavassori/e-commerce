@@ -7,6 +7,40 @@ interface ProductAttribute {
   [key: string]: string;
 }
 
+// SEO Optimization
+export async function generateMetadata({
+  params,
+}: {
+  params: { productSku: string };
+}) {
+  try {
+    const product = await db.product.findUnique({
+      where: {
+        sku: params.productSku,
+      },
+    });
+    if (!product) {
+      return {
+        title: "Not found",
+        description: "The Product you're looking for doesn't exist.",
+      };
+    }
+    return {
+      title: product.name,
+      description: product.description,
+      alternates: {
+        canonical: `/product/${product.sku}`,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      title: "Not found",
+      description: "The Product you're looking for doesn't exist.",
+    };
+  }
+}
+
 export async function generateStaticParams() {
   const products = await db.product.findMany();
   return products.map((product) => ({

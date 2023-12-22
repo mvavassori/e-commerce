@@ -9,7 +9,11 @@ import { CartContextProvider } from "@/context/CartContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "E-Commerce",
+  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
+  title: {
+    default: "E-Commerce",
+    template: "%s | E-Commerce",
+  },
   description: "This is a standard e-commerce website built with Next.js",
 };
 
