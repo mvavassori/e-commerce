@@ -34,7 +34,6 @@ export default async function AllCategoryProducts({
   if (!productCategory) {
     return notFound();
   }
-  console.log(productCategory);
   return (
     <div className="md:flex px-6">
       <div className="md:w-1/4 mt-6">

@@ -47,8 +47,6 @@ export default function AuthenticatedCart() {
 
   const isCartEmpty = !serverCart || serverCart.cart.items.length === 0;
 
-  console.log(serverCart?.cart.items);
-
   const checkout = async () => {
     try {
       await fetch("/api/checkout", {
@@ -63,7 +61,6 @@ export default function AuthenticatedCart() {
           return res.json();
         })
         .then((res) => {
-          console.log(res);
           if (res.url) {
             window.location.href = res.url;
           }

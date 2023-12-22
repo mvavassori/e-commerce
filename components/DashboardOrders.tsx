@@ -35,7 +35,6 @@ const getOrders = async () => {
 
 const DashboardOrders = async () => {
   const orders = await getOrders();
-  console.log(orders);
   return (
     <div className="bg-gray-100 mt-6 rounded-lg p-4">
       <h2 className="font-bold text-3xl">Orders</h2>

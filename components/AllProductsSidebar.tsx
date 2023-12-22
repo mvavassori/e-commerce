@@ -9,7 +9,6 @@ async function getCategories() {
 
 const AllProductsSidebar = async () => {
   const categories = await getCategories();
-  console.log(categories);
   return (
     <>
       <p className="text-xs text-gray-700 font-semibold mb-4">Categories</p>
