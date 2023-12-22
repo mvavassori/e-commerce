@@ -7,7 +7,7 @@ interface ProductAttribute {
   [key: string]: string;
 }
 
-export const dynamic = "force-static";
+export const dynamic = "force-static"; // added to solve the 500 internal server error
 
 // SEO Optimization
 export async function generateMetadata({

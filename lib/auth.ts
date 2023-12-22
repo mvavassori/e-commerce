@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           gender: user.gender,
           birthDate: user.birthDate,
+          stripeCustomerId: user.stripeCustomerId || null,
         };
       }
       return token;
@@ -89,6 +90,7 @@ export const authOptions: NextAuthOptions = {
           email: token.email,
           gender: token.gender,
           birthDate: token.birthDate,
+          stripeCustomerId: token.stripeCustomerId || null,
         },
       };
     },
