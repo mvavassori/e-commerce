@@ -13,7 +13,6 @@ declare module "next-auth" {
     > {
     // Here you can specify the types of the extra fields if they differ from what Prisma expects
     birthDate: string; // Assuming you want to handle birthDate as string in NextAuth
-    stripeCustomerId?: string | null;
   }
 
   // The Session object in NextAuth contains a user object with the same fields as the User model
